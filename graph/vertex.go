@@ -1,10 +1,12 @@
 package graph
 
 type VertexData struct {
-	TaskName string
+	taskName string
 }
 
 type Vertex struct {
-	SiteName string
-	Data     VertexData
+	siteName string
+	data     VertexData
 }
+
+type VertexCollection map[string]Vertex

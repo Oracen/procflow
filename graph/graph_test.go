@@ -7,7 +7,7 @@ import (
 )
 
 func createDefaultVertex() Vertex {
-	return Vertex{SiteName: "A name"}
+	return Vertex{siteName: "A name"}
 }
 
 func initGraph() Graph {
@@ -30,7 +30,7 @@ func TestGraph(t *testing.T) {
 			name := "a random name"
 			graph := initGraph()
 			vertex := createDefaultVertex()
-			vertex.SiteName = name
+			vertex.siteName = name
 			graph.AddNewVertex(vertex)
 
 			assert.Len(t, graph.vertices, 2)
@@ -44,7 +44,7 @@ func TestGraph(t *testing.T) {
 		func(t *testing.T) {
 			graph := initGraph()
 			vertex1 := createDefaultVertex()
-			vertex1.Data = VertexData{TaskName: "Get Data"}
+			vertex1.data = VertexData{taskName: "Get Data"}
 			err := graph.AddNewVertex(vertex1)
 
 			assert.ErrorIs(t, err, ErrGraphVertexAlreadyExists)

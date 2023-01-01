@@ -6,23 +6,21 @@ var ErrGraphVertexAlreadyExists = errors.New("this vertex has already been creat
 var ErrGraphVertexNotFound = errors.New("this vertex not found in graph")
 
 type Graph struct {
-	vertices GraphVertices
+	vertices VertexCollection
 }
 
-type GraphVertices map[string]Vertex
-
 func NewGraph() Graph {
-	graph := Graph{vertices: GraphVertices{}}
+	graph := Graph{vertices: VertexCollection{}}
 	return graph
 }
 
 func (g *Graph) AddNewVertex(vertex Vertex) (err error) {
-	obj, ok := g.vertices[vertex.SiteName]
-	if ok && (obj.Data != vertex.Data) {
+	obj, ok := g.vertices[vertex.siteName]
+	if ok && (obj.data != vertex.data) {
 		return ErrGraphVertexAlreadyExists
 	}
 	if !ok {
-		g.vertices[vertex.SiteName] = vertex
+		g.vertices[vertex.siteName] = vertex
 	}
 	return
 }
