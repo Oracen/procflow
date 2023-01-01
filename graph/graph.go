@@ -3,6 +3,7 @@ package graph
 import "errors"
 
 var ErrGraphVertexAlreadyExists = errors.New("this vertex has already been created under this name")
+var ErrGraphVertexNotFound = errors.New("this vertex not found in graph")
 
 type Graph struct {
 	vertices GraphVertices
@@ -17,13 +18,19 @@ func NewGraph() Graph {
 
 func (g *Graph) AddNewVertex(name string, vertex Vertex) (err error) {
 	obj, ok := g.vertices[name]
-	if ok && (obj == vertex) {
+	if ok && (obj != vertex) {
 		return ErrGraphVertexAlreadyExists
 	}
-	g.vertices[name] = vertex
+	if !ok {
+		g.vertices[name] = vertex
+	}
 	return
 }
 
-func (g *Graph) GetVertex(name string) Vertex {
-	return g.vertices[name]
+func (g *Graph) GetVertex(name string) (vertex Vertex, err error) {
+	vertex, ok := g.vertices[name]
+	if !ok {
+		return vertex, ErrGraphVertexNotFound
+	}
+	return
 }
