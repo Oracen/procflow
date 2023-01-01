@@ -1,8 +1,10 @@
 package graph
 
-type VertexData struct{}
+type VertexData struct {
+	ActivityName string
+}
 
 type Vertex struct {
-	Name string
-	Data VertexData
+	SiteName string
+	Data     VertexData
 }

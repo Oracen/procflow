@@ -16,13 +16,13 @@ func NewGraph() Graph {
 	return graph
 }
 
-func (g *Graph) AddNewVertex(name string, vertex Vertex) (err error) {
-	obj, ok := g.vertices[name]
-	if ok && (obj != vertex) {
+func (g *Graph) AddNewVertex(vertex Vertex) (err error) {
+	obj, ok := g.vertices[vertex.SiteName]
+	if ok && (obj.Data != vertex.Data) {
 		return ErrGraphVertexAlreadyExists
 	}
 	if !ok {
-		g.vertices[name] = vertex
+		g.vertices[vertex.SiteName] = vertex
 	}
 	return
 }

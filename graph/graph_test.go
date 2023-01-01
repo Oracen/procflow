@@ -7,12 +7,12 @@ import (
 )
 
 func createDefaultVertex() Vertex {
-	return Vertex{Name: "A name"}
+	return Vertex{SiteName: "A name"}
 }
 
 func initGraph() Graph {
 	graph := NewGraph()
-	graph.AddNewVertex("one", createDefaultVertex())
+	graph.AddNewVertex(createDefaultVertex())
 	return graph
 }
 
@@ -27,13 +27,16 @@ func TestGraph(t *testing.T) {
 	t.Run(
 		"test add vertices",
 		func(t *testing.T) {
+			name := "a random name"
 			graph := initGraph()
-			graph.AddNewVertex("two", createDefaultVertex())
+			vertex := createDefaultVertex()
+			vertex.SiteName = name
+			graph.AddNewVertex(vertex)
 
 			assert.Len(t, graph.vertices, 2)
 
-			vertex, _ := graph.GetVertex("one")
-			assert.Equal(t, createDefaultVertex(), vertex)
+			got, _ := graph.GetVertex(name)
+			assert.Equal(t, vertex, got)
 		},
 	)
 	t.Run(
@@ -41,8 +44,8 @@ func TestGraph(t *testing.T) {
 		func(t *testing.T) {
 			graph := initGraph()
 			vertex1 := createDefaultVertex()
-			vertex1.Name = "Another newer name"
-			err := graph.AddNewVertex("one", vertex1)
+			vertex1.Data = VertexData{ActivityName: "Get Data"}
+			err := graph.AddNewVertex(vertex1)
 
 			assert.ErrorIs(t, err, ErrGraphVertexAlreadyExists)
 		},
