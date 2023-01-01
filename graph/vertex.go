@@ -1,7 +1,7 @@
 package graph
 
 type VertexData struct {
-	ActivityName string
+	TaskName string
 }
 
 type Vertex struct {

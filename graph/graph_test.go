@@ -44,7 +44,7 @@ func TestGraph(t *testing.T) {
 		func(t *testing.T) {
 			graph := initGraph()
 			vertex1 := createDefaultVertex()
-			vertex1.Data = VertexData{ActivityName: "Get Data"}
+			vertex1.Data = VertexData{TaskName: "Get Data"}
 			err := graph.AddNewVertex(vertex1)
 
 			assert.ErrorIs(t, err, ErrGraphVertexAlreadyExists)
