@@ -21,16 +21,16 @@ func getGraphItem[T comparable](collection map[string]T, name string, errType er
 }
 
 func addGraphItem[T comparable](collection map[string]T, name string, item T, errType error) (err error) {
-	var value T
-
 	value, ok := collection[name]
-	if ok && (value != item) {
-		return errType
-	}
 	if !ok {
 		collection[name] = item
+		return
 	}
-	return
+	if value == item {
+		return
+	}
+
+	return errType
 }
 
 func mergeMapItems[T comparable](map1, map2 map[string]T, errType error) (merged map[string]T, err error) {

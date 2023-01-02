@@ -39,7 +39,7 @@ func TestGraphBuildFunctionality(t *testing.T) {
 	}
 
 	t.Run(
-		"test external package can utilise data and build self loops",
+		"test external package can utilise data and build self-loop edges",
 		func(t *testing.T) {
 			graph, err := buildDefaultGraph()
 			assert.Nil(t, err)
@@ -48,4 +48,5 @@ func TestGraphBuildFunctionality(t *testing.T) {
 
 		},
 	)
+
 }
