@@ -6,17 +6,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createDefaultVertex() Vertex {
-	return Vertex{siteName: "A name"}
-}
+func TestGraphBasicFunction(t *testing.T) {
+	defaultVertexName := "A name"
+	altVertexName := "a random name"
 
-func initGraph() Graph {
-	graph := NewGraph()
-	graph.AddNewVertex(createDefaultVertex())
-	return graph
-}
+	createDefaultVertex := func(name string) Vertex {
+		return Vertex{siteName: name}
+	}
 
-func TestGraph(t *testing.T) {
+	initGraph := func() Graph {
+		graph := NewGraph()
+		graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
+		return graph
+	}
+
 	t.Run(
 		"test graph creates correctly",
 		func(t *testing.T) {
@@ -25,17 +28,16 @@ func TestGraph(t *testing.T) {
 		},
 	)
 	t.Run(
-		"test add vertices",
+		"test add vertex",
 		func(t *testing.T) {
-			name := "a random name"
 			graph := initGraph()
-			vertex := createDefaultVertex()
-			vertex.siteName = name
-			graph.AddNewVertex(vertex)
+			assert.Len(t, graph.vertices, 1)
+
+			vertex := createDefaultVertex(altVertexName)
+			graph.AddNewVertex(altVertexName, vertex)
 
 			assert.Len(t, graph.vertices, 2)
-
-			got, _ := graph.GetVertex(name)
+			got, _ := graph.GetVertex(altVertexName)
 			assert.Equal(t, vertex, got)
 		},
 	)
@@ -43,10 +45,15 @@ func TestGraph(t *testing.T) {
 		"test add duplicate vertex name fails",
 		func(t *testing.T) {
 			graph := initGraph()
-			vertex1 := createDefaultVertex()
-			vertex1.data = VertexData{taskName: "Get Data"}
-			err := graph.AddNewVertex(vertex1)
+			vertex := createDefaultVertex(defaultVertexName)
 
+			// Same name but equal data, should not fail
+			err := graph.AddNewVertex(defaultVertexName, vertex)
+			assert.Equal(t, err, nil)
+
+			// Same name, different data, should fail
+			vertex.data = VertexData{taskName: "Get Data"}
+			err = graph.AddNewVertex(defaultVertexName, vertex)
 			assert.ErrorIs(t, err, ErrGraphVertexAlreadyExists)
 		},
 	)
@@ -58,6 +65,22 @@ func TestGraph(t *testing.T) {
 			_, err := graph.GetVertex("two")
 
 			assert.ErrorIs(t, err, ErrGraphVertexNotFound)
+		},
+	)
+
+	t.Run(
+		"test add edge",
+		func(t *testing.T) {
+			graph := initGraph()
+			vertex := createDefaultVertex(altVertexName)
+			graph.AddNewVertex(altVertexName, vertex)
+			assert.Len(t, graph.vertices, 2) // Sanity check
+
+			edge := Edge{defaultVertexName, altVertexName, EdgeData{}}
+
+			graph.AddNewEdge("edge name", edge)
+			assert.Len(t, graph.edges, 1)
+
 		},
 	)
 }
