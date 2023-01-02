@@ -1,13 +1,13 @@
 package topo
 
 type EdgeData struct {
-	invocationName string
+	InvocationName string
 }
 
 type Edge struct {
-	vertexFrom string
-	vertexTo   string
-	data       EdgeData
+	VertexFrom string
+	VertexTo   string
+	Data       EdgeData
 }
 
 type EdgeCollection map[string]Edge

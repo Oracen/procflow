@@ -50,7 +50,7 @@ func TestGraphVertexFunction(t *testing.T) {
 			assert.Nil(t, err)
 
 			// Same name, different data, should fail
-			vertex.data = VertexData{taskName: "Get Data"}
+			vertex.Data = VertexData{TaskName: "Get Data"}
 			err = graph.AddNewVertex(defaultVertexName, vertex)
 			assert.ErrorIs(t, err, errGraphVertexAlreadyExists)
 		},
@@ -111,7 +111,7 @@ func TestGraphEdgeFunction(t *testing.T) {
 			assert.Nil(t, err)
 
 			// Same name, different data, should fail
-			edge.data = EdgeData{invocationName: "Get Data"}
+			edge.Data = EdgeData{InvocationName: "Get Data"}
 			err = graph.AddNewEdge(defaultEdgeName, edge)
 			assert.ErrorIs(t, err, errGraphEdgeAlreadyExists)
 		},
@@ -134,7 +134,7 @@ func TestGraphEdgeFunction(t *testing.T) {
 }
 
 func createDefaultVertex(name string) Vertex {
-	return Vertex{siteName: name}
+	return Vertex{SiteName: name}
 }
 
 func initGraph() Graph {

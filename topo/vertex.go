@@ -7,12 +7,12 @@ var (
 )
 
 type VertexData struct {
-	taskName string
+	TaskName string
 }
 
 type Vertex struct {
-	siteName string
-	data     VertexData
+	SiteName string
+	Data     VertexData
 }
 
 type VertexCollection map[string]Vertex

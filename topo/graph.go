@@ -27,8 +27,12 @@ func (g *Graph) GetVertex(name string) (vertex Vertex, err error) {
 	return getGraphItem(g.vertices, name, errGraphVertexNotFound)
 }
 
+func (g *Graph) GetAllVertices(copy bool) (vertices VertexCollection) {
+	return getAllItems(g.vertices, copy)
+}
+
 func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
-	for _, vName := range []string{edge.vertexFrom, edge.vertexTo} {
+	for _, vName := range []string{edge.VertexFrom, edge.VertexTo} {
 		_, err := g.GetVertex(vName)
 		if err != nil {
 			return errGraphVertexNotFound
@@ -39,4 +43,8 @@ func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
 
 func (g *Graph) GetEdge(name string) (edge Edge, err error) {
 	return getGraphItem(g.edges, name, errGraphEdgeNotFound)
+}
+
+func (g *Graph) GetAllEdges(copy bool) (edge EdgeCollection) {
+	return getAllItems(g.edges, copy)
 }
