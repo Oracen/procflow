@@ -20,39 +20,39 @@ func NewGraph() Graph {
 }
 
 func (g *Graph) AddNewVertex(name string, vertex Vertex) (err error) {
-	obj, ok := g.vertices[name]
-	if ok && (obj.data != vertex.data) {
-		return ErrGraphVertexAlreadyExists
-	}
-	if !ok {
-		g.vertices[name] = vertex
-	}
-	return
+	return addGraphItem(g.vertices, name, vertex, ErrGraphVertexAlreadyExists)
 }
 
 func (g *Graph) GetVertex(name string) (vertex Vertex, err error) {
-	vertex, ok := g.vertices[name]
-	if !ok {
-		return vertex, ErrGraphVertexNotFound
-	}
-	return
+	return getGraphItem(g.vertices, name, ErrGraphVertexNotFound)
 }
 
 func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
-	obj, ok := g.edges[name]
-	if ok && (obj.data != edge.data) {
-		return ErrGraphEdgeAlreadyExists
-	}
-	if !ok {
-		g.edges[name] = edge
-	}
-	return
+	return addGraphItem(g.edges, name, edge, ErrGraphEdgeAlreadyExists)
 }
 
 func (g *Graph) GetEdge(name string) (edge Edge, err error) {
-	edge, ok := g.edges[name]
+	return getGraphItem(g.edges, name, ErrGraphEdgeNotFound)
+}
+
+func getGraphItem[T comparable](collection map[string]T, name string, errType error) (item T, err error) {
+	item, ok := collection[name]
 	if !ok {
-		return edge, ErrGraphEdgeNotFound
+		return item, errType
+	}
+	return
+
+}
+
+func addGraphItem[T comparable](collection map[string]T, name string, item T, errType error) (err error) {
+	var value T
+
+	value, ok := collection[name]
+	if ok && (value != item) {
+		return errType
+	}
+	if !ok {
+		collection[name] = item
 	}
 	return
 }
