@@ -1,4 +1,4 @@
-package graph
+package topo
 
 type EdgeData struct {
 	invocationName string

@@ -1,4 +1,4 @@
-package graph
+package topo
 
 func getGraphItem[T comparable](collection map[string]T, name string, errType error) (item T, err error) {
 	item, ok := collection[name]
