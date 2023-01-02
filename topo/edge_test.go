@@ -57,7 +57,7 @@ func TestEdgeFunctions(t *testing.T) {
 			edges2["3"] = edges2["4"]
 
 			_, err := MergeEdges(edges1, edges2)
-			assert.ErrorIs(t, err, errVertexMergeDuplicate)
+			assert.ErrorIs(t, err, errEdgeMergeDuplicate)
 		},
 	)
 }

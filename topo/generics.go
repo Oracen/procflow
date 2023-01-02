@@ -32,3 +32,20 @@ func addGraphItem[T comparable](collection map[string]T, name string, item T, er
 	}
 	return
 }
+
+func mergeMapItems[T comparable](map1, map2 map[string]T, errType error) (merged map[string]T, err error) {
+	merged = map[string]T{}
+	for key, value := range map1 {
+		// Create copy for safety
+		merged[key] = value
+	}
+
+	for key, value := range map2 {
+		err = addGraphItem(merged, key, value, errType)
+		if err != nil {
+			// TODO: Better error communication
+			return map[string]T{}, err
+		}
+	}
+	return
+}
