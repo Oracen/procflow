@@ -19,20 +19,30 @@ func TestGraphBuildFunctionality(t *testing.T) {
 		return
 	}
 
+	buildDefaultGraph := func() (graph topo.Graph, err error) {
+		graph = topo.NewGraph()
+		for _, item := range getVertices(4) {
+			name := uuid.New().String()
+			err = graph.AddNewVertex(name, item)
+			if err != nil {
+				return
+			}
+			for key := range graph.GetAllVertices(true) {
+				edge := topo.Edge{name, key, topo.EdgeData{InvocationName: "blah"}}
+				err = graph.AddNewEdge(uuid.New().String(), edge)
+				if err != nil {
+					return
+				}
+			}
+		}
+		return
+	}
+
 	t.Run(
 		"test external package can utilise data and build self loops",
 		func(t *testing.T) {
-			graph := topo.NewGraph()
-			for _, item := range getVertices(4) {
-				name := uuid.New().String()
-				err := graph.AddNewVertex(name, item)
-				assert.Nil(t, err)
-				for key := range graph.GetAllVertices(true) {
-					edge := topo.Edge{name, key, topo.EdgeData{InvocationName: "blah"}}
-					err = graph.AddNewEdge(uuid.New().String(), edge)
-					assert.Nil(t, err)
-				}
-			}
+			graph, err := buildDefaultGraph()
+			assert.Nil(t, err)
 			assert.Len(t, graph.GetAllVertices(false), 4)
 			assert.Len(t, graph.GetAllEdges(false), 10)
 
