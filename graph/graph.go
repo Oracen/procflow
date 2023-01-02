@@ -40,25 +40,3 @@ func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
 func (g *Graph) GetEdge(name string) (edge Edge, err error) {
 	return getGraphItem(g.edges, name, ErrGraphEdgeNotFound)
 }
-
-func getGraphItem[T comparable](collection map[string]T, name string, errType error) (item T, err error) {
-	item, ok := collection[name]
-	if !ok {
-		return item, errType
-	}
-	return
-
-}
-
-func addGraphItem[T comparable](collection map[string]T, name string, item T, errType error) (err error) {
-	var value T
-
-	value, ok := collection[name]
-	if ok && (value != item) {
-		return errType
-	}
-	if !ok {
-		collection[name] = item
-	}
-	return
-}
