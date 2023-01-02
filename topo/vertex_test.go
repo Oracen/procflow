@@ -15,7 +15,8 @@ func TestVertexFunctions(t *testing.T) {
 	numVertex := 6
 	baseVertices := VertexCollection{}
 	for idx := 0; idx < numVertex; idx++ {
-		baseVertices[fmt.Sprint(idx)] = Vertex{fmt.Sprint(idx), VertexData{fmt.Sprint(idx)}}
+		key := fmt.Sprint(idx)
+		baseVertices[key] = Vertex{key, VertexData{key}}
 	}
 
 	sliceVertices := func(vertices VertexCollection, start, stop int) (sliced VertexCollection) {
