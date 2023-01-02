@@ -9,6 +9,8 @@ import (
 var (
 	defaultVertexName = "A name"
 	altVertexName     = "a random name"
+	defaultEdgeName   = "An Edge name"
+	altEdgeName       = "An Edge nom de gurre"
 )
 
 func TestGraphBasicFunction(t *testing.T) {
@@ -20,8 +22,10 @@ func TestGraphBasicFunction(t *testing.T) {
 			assert.Len(t, graph.vertices, 0)
 		},
 	)
+}
+func TestGraphVertexFunction(t *testing.T) {
 	t.Run(
-		"test add vertex",
+		"test add and get vertex",
 		func(t *testing.T) {
 			graph := initGraph()
 			assert.Len(t, graph.vertices, 1)
@@ -60,41 +64,44 @@ func TestGraphBasicFunction(t *testing.T) {
 			assert.ErrorIs(t, err, ErrGraphVertexNotFound)
 		},
 	)
+}
 
+func TestGraphEdgeFunction(t *testing.T) {
 	t.Run(
-		"test add edge",
+		"test add and get edge",
 		func(t *testing.T) {
-			graph := initGraph()
-			vertex := createDefaultVertex(altVertexName)
-			graph.AddNewVertex(altVertexName, vertex)
+			graph := createBasicVertices()
 			assert.Len(t, graph.vertices, 2) // Sanity check
 
-			edge := Edge{defaultVertexName, altVertexName, EdgeData{}}
+			edge1 := Edge{defaultVertexName, altVertexName, EdgeData{}}
+			edge2 := Edge{altVertexName, defaultEdgeName, EdgeData{}}
 
-			graph.AddNewEdge("edge name", edge)
+			graph.AddNewEdge(defaultEdgeName, edge1)
 			assert.Len(t, graph.edges, 1)
+			graph.AddNewEdge(altEdgeName, edge2)
+			assert.Len(t, graph.edges, 2)
 
+			got, _ := graph.GetEdge(defaultEdgeName)
+			assert.Equal(t, edge1, got)
 		},
 	)
 
 	t.Run(
 		"test add duplicate edge name fails",
 		func(t *testing.T) {
-			graph := initGraph()
-			vertex := createDefaultVertex(altVertexName)
-			graph.AddNewVertex(altVertexName, vertex)
+			graph := createBasicVertices()
 
 			edge := Edge{defaultVertexName, altVertexName, EdgeData{}}
-			graph.AddNewEdge("edge name", edge)
+			graph.AddNewEdge(defaultEdgeName, edge)
 			assert.Len(t, graph.edges, 1) // Sanity check
 
 			// Same name but equal data, should not fail
-			err := graph.AddNewEdge("edge name", edge)
+			err := graph.AddNewEdge(defaultEdgeName, edge)
 			assert.Equal(t, err, nil)
 
 			// Same name, different data, should fail
 			edge.data = EdgeData{invocationName: "Get Data"}
-			err = graph.AddNewEdge("edge name", edge)
+			err = graph.AddNewEdge(defaultEdgeName, edge)
 			assert.ErrorIs(t, err, ErrGraphEdgeAlreadyExists)
 		},
 	)
@@ -107,5 +114,12 @@ func createDefaultVertex(name string) Vertex {
 func initGraph() Graph {
 	graph := NewGraph()
 	graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
+	return graph
+}
+
+func createBasicVertices() Graph {
+	graph := initGraph()
+	vertex := createDefaultVertex(altVertexName)
+	graph.AddNewVertex(altVertexName, vertex)
 	return graph
 }
