@@ -14,13 +14,28 @@ var (
 	nonexistentVertexName = "Cest ne pas vertex"
 )
 
-func TestGraphBasicFunction(t *testing.T) {
-
+func TestGraphCoreFunction(t *testing.T) {
 	t.Run(
 		"test graph creates correctly",
 		func(t *testing.T) {
 			graph := NewGraph()
 			assert.Len(t, graph.vertices, 0)
+		},
+	)
+
+	t.Run(
+		"test merge graph functionality",
+		func(t *testing.T) {
+			graph1 := createBasicVertices()
+			graph2 := createBasicVertices()
+			edgePair := createEdgePair(defaultVertexName, altVertexName)
+			graph1.AddNewEdge(edgePair[0].name, edgePair[0].edge)
+			graph2.AddNewEdge(edgePair[1].name, edgePair[1].edge)
+
+			merged, err := MergeGraphs(graph1, graph2)
+			assert.Nil(t, err)
+			assert.Len(t, merged.vertices, 2)
+			assert.Len(t, merged.edges, 2)
 		},
 	)
 }
@@ -68,17 +83,7 @@ func TestGraphVertexFunction(t *testing.T) {
 }
 
 func TestGraphEdgeFunction(t *testing.T) {
-	type edgeBuild struct {
-		name string
-		edge Edge
-	}
 
-	createEdgePair := func(name1, name2 string) []edgeBuild {
-		return []edgeBuild{
-			{defaultEdgeName, Edge{name1, name2, EdgeData{}}},
-			{altEdgeName, Edge{name2, name1, EdgeData{}}},
-		}
-	}
 	t.Run(
 		"test add and get edge",
 		func(t *testing.T) {
@@ -133,6 +138,11 @@ func TestGraphEdgeFunction(t *testing.T) {
 	)
 }
 
+type edgeBuild struct {
+	name string
+	edge Edge
+}
+
 func createDefaultVertex(name string) Vertex {
 	return Vertex{SiteName: name}
 }
@@ -148,4 +158,11 @@ func createBasicVertices() Graph {
 	vertex := createDefaultVertex(altVertexName)
 	graph.AddNewVertex(altVertexName, vertex)
 	return graph
+}
+
+func createEdgePair(name1, name2 string) []edgeBuild {
+	return []edgeBuild{
+		{defaultEdgeName, Edge{name1, name2, EdgeData{}}},
+		{altEdgeName, Edge{name2, name1, EdgeData{}}},
+	}
 }

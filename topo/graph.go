@@ -48,3 +48,17 @@ func (g *Graph) GetEdge(name string) (edge Edge, err error) {
 func (g *Graph) GetAllEdges(copy bool) (edge EdgeCollection) {
 	return getAllItems(g.edges, copy)
 }
+
+func MergeGraphs(graph1, graph2 Graph) (merged Graph, err error) {
+	vertices, err := MergeVertices(graph1.vertices, graph2.vertices)
+	if err != nil {
+		return
+	}
+	edges, err := MergeEdges(graph1.edges, graph2.edges)
+	if err != nil {
+		return
+	}
+	merged.vertices = vertices
+	merged.edges = edges
+	return
+}
