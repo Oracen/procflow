@@ -59,7 +59,7 @@ func TestVertexFunctions(t *testing.T) {
 			vertices2["3"] = vertices2["4"]
 
 			_, err := MergeVertices(vertices1, vertices2)
-			assert.ErrorIs(t, err, ErrVertexMergeDuplicate)
+			assert.ErrorIs(t, err, errVertexMergeDuplicate)
 		},
 	)
 }
