@@ -28,6 +28,12 @@ func (g *Graph) GetVertex(name string) (vertex Vertex, err error) {
 }
 
 func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
+	for _, vName := range []string{edge.vertexFrom, edge.vertexTo} {
+		_, err := g.GetVertex(vName)
+		if err != nil {
+			return ErrGraphVertexNotFound
+		}
+	}
 	return addGraphItem(g.edges, name, edge, ErrGraphEdgeAlreadyExists)
 }
 

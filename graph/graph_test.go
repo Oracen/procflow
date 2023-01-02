@@ -7,10 +7,11 @@ import (
 )
 
 var (
-	defaultVertexName = "A name"
-	altVertexName     = "a random name"
-	defaultEdgeName   = "An Edge name"
-	altEdgeName       = "An Edge nom de gurre"
+	defaultVertexName     = "A name"
+	altVertexName         = "a random name"
+	defaultEdgeName       = "An Edge name"
+	altEdgeName           = "An Edge nom de gurre"
+	nonexistentVertexName = "Cest ne pas vertex"
 )
 
 func TestGraphBasicFunction(t *testing.T) {
@@ -46,7 +47,7 @@ func TestGraphVertexFunction(t *testing.T) {
 
 			// Same name but equal data, should not fail
 			err := graph.AddNewVertex(defaultVertexName, vertex)
-			assert.Equal(t, err, nil)
+			assert.Nil(t, err)
 
 			// Same name, different data, should fail
 			vertex.data = VertexData{taskName: "Get Data"}
@@ -67,22 +68,32 @@ func TestGraphVertexFunction(t *testing.T) {
 }
 
 func TestGraphEdgeFunction(t *testing.T) {
+	type edgeBuild struct {
+		name string
+		edge Edge
+	}
+
+	createEdgePair := func(name1, name2 string) []edgeBuild {
+		return []edgeBuild{
+			{defaultEdgeName, Edge{name1, name2, EdgeData{}}},
+			{altEdgeName, Edge{name2, name1, EdgeData{}}},
+		}
+	}
 	t.Run(
 		"test add and get edge",
 		func(t *testing.T) {
 			graph := createBasicVertices()
 			assert.Len(t, graph.vertices, 2) // Sanity check
 
-			edge1 := Edge{defaultVertexName, altVertexName, EdgeData{}}
-			edge2 := Edge{altVertexName, defaultEdgeName, EdgeData{}}
-
-			graph.AddNewEdge(defaultEdgeName, edge1)
-			assert.Len(t, graph.edges, 1)
-			graph.AddNewEdge(altEdgeName, edge2)
-			assert.Len(t, graph.edges, 2)
-
-			got, _ := graph.GetEdge(defaultEdgeName)
-			assert.Equal(t, edge1, got)
+			edges := createEdgePair(defaultVertexName, altVertexName)
+			assert.Len(t, graph.edges, 0) // Sanity check
+			for idx, eBuild := range edges {
+				err := graph.AddNewEdge(eBuild.name, eBuild.edge)
+				assert.Nil(t, err)
+				assert.Len(t, graph.edges, idx+1)
+				got, _ := graph.GetEdge(eBuild.name)
+				assert.Equal(t, eBuild.edge, got)
+			}
 		},
 	)
 
@@ -97,12 +108,27 @@ func TestGraphEdgeFunction(t *testing.T) {
 
 			// Same name but equal data, should not fail
 			err := graph.AddNewEdge(defaultEdgeName, edge)
-			assert.Equal(t, err, nil)
+			assert.Nil(t, err)
 
 			// Same name, different data, should fail
 			edge.data = EdgeData{invocationName: "Get Data"}
 			err = graph.AddNewEdge(defaultEdgeName, edge)
 			assert.ErrorIs(t, err, ErrGraphEdgeAlreadyExists)
+		},
+	)
+	t.Run(
+		"test add edge fails if both vertices don't exist",
+		func(t *testing.T) {
+			graph := createBasicVertices()
+
+			edges := createEdgePair(defaultVertexName, nonexistentVertexName)
+			for _, eBuild := range edges {
+				err := graph.AddNewEdge(eBuild.name, eBuild.edge)
+				assert.ErrorIs(t, err, ErrGraphVertexNotFound)
+				assert.NotErrorIs(t, err, ErrGraphEdgeNotFound)
+				assert.Len(t, graph.edges, 0)
+			}
+
 		},
 	)
 }
