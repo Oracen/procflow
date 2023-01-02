@@ -52,7 +52,7 @@ func TestGraphVertexFunction(t *testing.T) {
 			// Same name, different data, should fail
 			vertex.data = VertexData{taskName: "Get Data"}
 			err = graph.AddNewVertex(defaultVertexName, vertex)
-			assert.ErrorIs(t, err, ErrGraphVertexAlreadyExists)
+			assert.ErrorIs(t, err, errGraphVertexAlreadyExists)
 		},
 	)
 
@@ -62,7 +62,7 @@ func TestGraphVertexFunction(t *testing.T) {
 			graph := initGraph()
 			_, err := graph.GetVertex("two")
 
-			assert.ErrorIs(t, err, ErrGraphVertexNotFound)
+			assert.ErrorIs(t, err, errGraphVertexNotFound)
 		},
 	)
 }
@@ -113,7 +113,7 @@ func TestGraphEdgeFunction(t *testing.T) {
 			// Same name, different data, should fail
 			edge.data = EdgeData{invocationName: "Get Data"}
 			err = graph.AddNewEdge(defaultEdgeName, edge)
-			assert.ErrorIs(t, err, ErrGraphEdgeAlreadyExists)
+			assert.ErrorIs(t, err, errGraphEdgeAlreadyExists)
 		},
 	)
 	t.Run(
@@ -124,8 +124,8 @@ func TestGraphEdgeFunction(t *testing.T) {
 			edges := createEdgePair(defaultVertexName, nonexistentVertexName)
 			for _, eBuild := range edges {
 				err := graph.AddNewEdge(eBuild.name, eBuild.edge)
-				assert.ErrorIs(t, err, ErrGraphVertexNotFound)
-				assert.NotErrorIs(t, err, ErrGraphEdgeNotFound)
+				assert.ErrorIs(t, err, errGraphVertexNotFound)
+				assert.NotErrorIs(t, err, errGraphEdgeNotFound)
 				assert.Len(t, graph.edges, 0)
 			}
 
