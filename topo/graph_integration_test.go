@@ -27,7 +27,7 @@ func TestGraphBuildFunctionality(t *testing.T) {
 				name := uuid.New().String()
 				err := graph.AddNewVertex(name, item)
 				assert.Nil(t, err)
-				for key, _ := range graph.GetAllVertices(true) {
+				for key := range graph.GetAllVertices(true) {
 					edge := topo.Edge{name, key, topo.EdgeData{InvocationName: "blah"}}
 					err = graph.AddNewEdge(uuid.New().String(), edge)
 					assert.Nil(t, err)
