@@ -1,6 +1,8 @@
 package graph
 
-type EdgeData struct{}
+type EdgeData struct {
+	invocationName string
+}
 
 type Edge struct {
 	vertexFrom string

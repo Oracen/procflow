@@ -6,19 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	defaultVertexName = "A name"
+	altVertexName     = "a random name"
+)
+
 func TestGraphBasicFunction(t *testing.T) {
-	defaultVertexName := "A name"
-	altVertexName := "a random name"
-
-	createDefaultVertex := func(name string) Vertex {
-		return Vertex{siteName: name}
-	}
-
-	initGraph := func() Graph {
-		graph := NewGraph()
-		graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
-		return graph
-	}
 
 	t.Run(
 		"test graph creates correctly",
@@ -83,4 +76,36 @@ func TestGraphBasicFunction(t *testing.T) {
 
 		},
 	)
+
+	t.Run(
+		"test add duplicate edge name fails",
+		func(t *testing.T) {
+			graph := initGraph()
+			vertex := createDefaultVertex(altVertexName)
+			graph.AddNewVertex(altVertexName, vertex)
+
+			edge := Edge{defaultVertexName, altVertexName, EdgeData{}}
+			graph.AddNewEdge("edge name", edge)
+			assert.Len(t, graph.edges, 1) // Sanity check
+
+			// Same name but equal data, should not fail
+			err := graph.AddNewEdge("edge name", edge)
+			assert.Equal(t, err, nil)
+
+			// Same name, different data, should fail
+			edge.data = EdgeData{invocationName: "Get Data"}
+			err = graph.AddNewEdge("edge name", edge)
+			assert.ErrorIs(t, err, ErrGraphEdgeAlreadyExists)
+		},
+	)
+}
+
+func createDefaultVertex(name string) Vertex {
+	return Vertex{siteName: name}
+}
+
+func initGraph() Graph {
+	graph := NewGraph()
+	graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
+	return graph
 }
