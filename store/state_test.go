@@ -29,9 +29,16 @@ func TestStateSystems(t *testing.T) {
 			strings[4] = "miracle"
 
 			retrieved := state.getState()
+			// Check lengths same
+			assert.Len(t, retrieved, len(strings))
 
-			// Ensure pointers are maintained
+			// Ensure pointers maintain values...
 			assert.Equal(t, strings, retrieved)
+
+			// ...but are copies of the underlying object
+			for idx := range strings {
+				assert.NotSame(t, &strings[idx], &retrieved[idx])
+			}
 
 		},
 	)
