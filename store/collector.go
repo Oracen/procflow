@@ -1,7 +1,16 @@
 package store
 
-type Collector struct{}
+import "github.com/Oracen/bpmn-flow/topo"
 
-func CreateNewCollector() Collector {
-	return Collector{}
+type Collector struct {
+	state State[Collector]
+}
+
+func CreateNewCollector(state State[Collector]) Collector {
+	return Collector{state: state}
+}
+
+func (c *Collector) TrackNewGraph() (graph topo.Graph) {
+	graph = topo.CreateNewGraph()
+	return
 }
