@@ -28,6 +28,8 @@ func (g *globalState[T]) addObject(obj *T) {
 }
 
 func (g *globalState[T]) getState() (state []T) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
 	state = []T{}
 	for _, item := range g.objects {
 		state = append(state, *item)
