@@ -50,7 +50,6 @@ func TestStateSystems(t *testing.T) {
 			// Init constancs
 			numInstances := 5000
 			lock := sync.Mutex{}
-			wg := sync.WaitGroup{}
 
 			// Initialise test holders
 			var (
@@ -60,13 +59,11 @@ func TestStateSystems(t *testing.T) {
 
 			// Build a lot of backends in goroutines, add data as we do
 			for idx := 0; idx < numInstances; idx++ {
-				wg.Add(1)
 				counter := idx
 				go func() {
 					state := createGlobalSingleton(&stringSingleton, &lock)
 
 					go func() {
-						defer wg.Done()
 						s1 := fmt.Sprint(counter)
 						s2 := "-" + s1
 						state.addObject(&s1)
@@ -82,7 +79,6 @@ func TestStateSystems(t *testing.T) {
 				}()
 
 			}
-			wg.Wait()
 
 			// Check for singleton behaviour
 			copyFirst := firstState.getState()
