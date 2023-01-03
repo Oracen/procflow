@@ -18,7 +18,7 @@ func TestGraphCoreFunction(t *testing.T) {
 	t.Run(
 		"test graph creates correctly",
 		func(t *testing.T) {
-			graph := NewGraph()
+			graph := CreateNewGraph()
 			assert.Len(t, graph.vertices, 0)
 		},
 	)
@@ -148,7 +148,7 @@ func createDefaultVertex(name string) Vertex {
 }
 
 func initGraph() Graph {
-	graph := NewGraph()
+	graph := CreateNewGraph()
 	graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
 	return graph
 }

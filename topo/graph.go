@@ -14,7 +14,7 @@ type Graph struct {
 	edges    EdgeCollection
 }
 
-func NewGraph() Graph {
+func CreateNewGraph() Graph {
 	graph := Graph{vertices: VertexCollection{}, edges: EdgeCollection{}}
 	return graph
 }

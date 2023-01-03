@@ -20,7 +20,7 @@ func TestGraphBuildFunctionality(t *testing.T) {
 	}
 
 	buildDefaultGraph := func() (graph topo.Graph, err error) {
-		graph = topo.NewGraph()
+		graph = topo.CreateNewGraph()
 		for _, item := range getVertices(4) {
 			name := uuid.New().String()
 			err = graph.AddNewVertex(name, item)
