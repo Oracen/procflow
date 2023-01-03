@@ -18,7 +18,7 @@ func TestGraphCoreFunction(t *testing.T) {
 	t.Run(
 		"test graph creates correctly",
 		func(t *testing.T) {
-			graph := CreateNewGraph()
+			graph := CreateNewGraph[vertexData, int]()
 			assert.Len(t, graph.vertices, 0)
 		},
 	)
@@ -65,7 +65,7 @@ func TestGraphVertexFunction(t *testing.T) {
 			assert.Nil(t, err)
 
 			// Same name, different data, should fail
-			vertex.Data = VertexData{TaskName: "Get Data"}
+			vertex.Data = vertexData{TaskName: "Get Data"}
 			err = graph.AddNewVertex(defaultVertexName, vertex)
 			assert.ErrorIs(t, err, errGraphVertexAlreadyExists)
 		},
@@ -107,7 +107,7 @@ func TestGraphEdgeFunction(t *testing.T) {
 		func(t *testing.T) {
 			graph := createBasicVertices()
 
-			edge := Edge{defaultVertexName, altVertexName, EdgeData{}}
+			edge := Edge[edgeData]{defaultVertexName, altVertexName, edgeData{}}
 			graph.AddNewEdge(defaultEdgeName, edge)
 			assert.Len(t, graph.edges, 1) // Sanity check
 
@@ -116,7 +116,7 @@ func TestGraphEdgeFunction(t *testing.T) {
 			assert.Nil(t, err)
 
 			// Same name, different data, should fail
-			edge.Data = EdgeData{InvocationName: "Get Data"}
+			edge.Data = edgeData{InvocationName: "Get Data"}
 			err = graph.AddNewEdge(defaultEdgeName, edge)
 			assert.ErrorIs(t, err, errGraphEdgeAlreadyExists)
 		},
@@ -140,20 +140,20 @@ func TestGraphEdgeFunction(t *testing.T) {
 
 type edgeBuild struct {
 	name string
-	edge Edge
+	edge Edge[edgeData]
 }
 
-func createDefaultVertex(name string) Vertex {
-	return Vertex{SiteName: name}
+func createDefaultVertex(name string) Vertex[vertexData] {
+	return Vertex[vertexData]{SiteName: name}
 }
 
-func initGraph() Graph {
-	graph := CreateNewGraph()
+func initGraph() Graph[vertexData, edgeData] {
+	graph := CreateNewGraph[vertexData, edgeData]()
 	graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
 	return graph
 }
 
-func createBasicVertices() Graph {
+func createBasicVertices() Graph[vertexData, edgeData] {
 	graph := initGraph()
 	vertex := createDefaultVertex(altVertexName)
 	graph.AddNewVertex(altVertexName, vertex)
@@ -162,7 +162,7 @@ func createBasicVertices() Graph {
 
 func createEdgePair(name1, name2 string) []edgeBuild {
 	return []edgeBuild{
-		{defaultEdgeName, Edge{name1, name2, EdgeData{}}},
-		{altEdgeName, Edge{name2, name1, EdgeData{}}},
+		{defaultEdgeName, Edge[edgeData]{name1, name2, edgeData{}}},
+		{altEdgeName, Edge[edgeData]{name2, name1, edgeData{}}},
 	}
 }

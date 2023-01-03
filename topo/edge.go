@@ -6,18 +6,14 @@ var (
 	errEdgeMergeDuplicate = errors.New("edges exist in both lists with non-matching data")
 )
 
-type EdgeData struct {
-	InvocationName string
-}
-
-type Edge struct {
+type Edge[T comparable] struct {
 	VertexFrom string
 	VertexTo   string
-	Data       EdgeData
+	Data       T
 }
 
-type EdgeCollection map[string]Edge
+type EdgeCollection[T comparable] map[string]Edge[T]
 
-func MergeEdges(edges1, edges2 EdgeCollection) (merged EdgeCollection, err error) {
+func MergeEdges[T comparable](edges1, edges2 EdgeCollection[T]) (merged EdgeCollection[T], err error) {
 	return mergeMapItems(edges1, edges2, errEdgeMergeDuplicate)
 }

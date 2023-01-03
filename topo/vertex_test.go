@@ -13,14 +13,14 @@ type buildSlices struct {
 
 func TestVertexFunctions(t *testing.T) {
 	numVertex := 6
-	baseVertices := VertexCollection{}
+	baseVertices := VertexCollection[vertexData]{}
 	for idx := 0; idx < numVertex; idx++ {
 		key := fmt.Sprint(idx)
-		baseVertices[key] = Vertex{key, VertexData{key}}
+		baseVertices[key] = Vertex[vertexData]{key, vertexData{key}}
 	}
 
-	sliceVertices := func(vertices VertexCollection, start, stop int) (sliced VertexCollection) {
-		sliced = VertexCollection{}
+	sliceVertices := func(vertices VertexCollection[vertexData], start, stop int) (sliced VertexCollection[vertexData]) {
+		sliced = VertexCollection[vertexData]{}
 		for idx := start; idx < stop; idx++ {
 			sliced[fmt.Sprint(idx)] = vertices[fmt.Sprint(idx)]
 		}
@@ -32,7 +32,7 @@ func TestVertexFunctions(t *testing.T) {
 		func(t *testing.T) {
 			slices := []buildSlices{{0, 4}, {4, numVertex}, {2, numVertex}}
 
-			var baseSlice VertexCollection
+			var baseSlice VertexCollection[vertexData]
 			for idx, item := range slices {
 				slice := sliceVertices(baseVertices, item.start, item.stop)
 
@@ -63,4 +63,8 @@ func TestVertexFunctions(t *testing.T) {
 			assert.ErrorIs(t, err, errVertexMergeDuplicate)
 		},
 	)
+}
+
+type vertexData struct {
+	TaskName string
 }

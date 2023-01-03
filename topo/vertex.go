@@ -6,17 +6,13 @@ var (
 	errVertexMergeDuplicate = errors.New("vertices exist in both lists with non-matching data")
 )
 
-type VertexData struct {
-	TaskName string
-}
-
-type Vertex struct {
+type Vertex[T comparable] struct {
 	SiteName string
-	Data     VertexData
+	Data     T
 }
 
-type VertexCollection map[string]Vertex
+type VertexCollection[T comparable] map[string]Vertex[T]
 
-func MergeVertices(vertices1, vertices2 VertexCollection) (merged VertexCollection, err error) {
+func MergeVertices[T comparable](vertices1, vertices2 VertexCollection[T]) (merged VertexCollection[T], err error) {
 	return mergeMapItems(vertices1, vertices2, errVertexMergeDuplicate)
 }

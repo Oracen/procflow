@@ -10,14 +10,14 @@ import (
 func TestEdgeFunctions(t *testing.T) {
 
 	numEdges := 6
-	baseEdges := EdgeCollection{}
+	baseEdges := EdgeCollection[edgeData]{}
 	for idx := 0; idx < numEdges; idx++ {
 		key := fmt.Sprint(idx)
-		baseEdges[key] = Edge{key, key, EdgeData{key}}
+		baseEdges[key] = Edge[edgeData]{key, key, edgeData{key}}
 	}
 
-	sliceEdges := func(edges EdgeCollection, start, stop int) (sliced EdgeCollection) {
-		sliced = EdgeCollection{}
+	sliceEdges := func(edges EdgeCollection[edgeData], start, stop int) (sliced EdgeCollection[edgeData]) {
+		sliced = EdgeCollection[edgeData]{}
 		for idx := start; idx < stop; idx++ {
 			sliced[fmt.Sprint(idx)] = edges[fmt.Sprint(idx)]
 		}
@@ -29,7 +29,7 @@ func TestEdgeFunctions(t *testing.T) {
 		func(t *testing.T) {
 			slices := []buildSlices{{0, 4}, {4, numEdges}, {2, numEdges}}
 
-			var baseSlice EdgeCollection
+			var baseSlice EdgeCollection[edgeData]
 			for idx, item := range slices {
 				slice := sliceEdges(baseEdges, item.start, item.stop)
 
@@ -60,4 +60,8 @@ func TestEdgeFunctions(t *testing.T) {
 			assert.ErrorIs(t, err, errEdgeMergeDuplicate)
 		},
 	)
+}
+
+type edgeData struct {
+	InvocationName string
 }

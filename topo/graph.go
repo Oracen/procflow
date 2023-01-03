@@ -9,29 +9,29 @@ var (
 	errGraphEdgeNotFound        = errors.New("this edge not found in graph")
 )
 
-type Graph struct {
-	vertices VertexCollection
-	edges    EdgeCollection
+type Graph[S, T comparable] struct {
+	vertices VertexCollection[S]
+	edges    EdgeCollection[T]
 }
 
-func CreateNewGraph() Graph {
-	graph := Graph{vertices: VertexCollection{}, edges: EdgeCollection{}}
+func CreateNewGraph[S, T comparable]() Graph[S, T] {
+	graph := Graph[S, T]{vertices: VertexCollection[S]{}, edges: EdgeCollection[T]{}}
 	return graph
 }
 
-func (g *Graph) AddNewVertex(name string, vertex Vertex) (err error) {
+func (g *Graph[S, T]) AddNewVertex(name string, vertex Vertex[S]) (err error) {
 	return addGraphItem(g.vertices, name, vertex, errGraphVertexAlreadyExists)
 }
 
-func (g *Graph) GetVertex(name string) (vertex Vertex, err error) {
+func (g *Graph[S, T]) GetVertex(name string) (vertex Vertex[S], err error) {
 	return getGraphItem(g.vertices, name, errGraphVertexNotFound)
 }
 
-func (g *Graph) GetAllVertices(copy bool) (vertices VertexCollection) {
+func (g *Graph[S, T]) GetAllVertices(copy bool) (vertices VertexCollection[S]) {
 	return getAllItems(g.vertices, copy)
 }
 
-func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
+func (g *Graph[S, T]) AddNewEdge(name string, edge Edge[T]) (err error) {
 	for _, vName := range []string{edge.VertexFrom, edge.VertexTo} {
 		_, err := g.GetVertex(vName)
 		if err != nil {
@@ -41,15 +41,15 @@ func (g *Graph) AddNewEdge(name string, edge Edge) (err error) {
 	return addGraphItem(g.edges, name, edge, errGraphEdgeAlreadyExists)
 }
 
-func (g *Graph) GetEdge(name string) (edge Edge, err error) {
+func (g *Graph[S, T]) GetEdge(name string) (edge Edge[T], err error) {
 	return getGraphItem(g.edges, name, errGraphEdgeNotFound)
 }
 
-func (g *Graph) GetAllEdges(copy bool) (edge EdgeCollection) {
+func (g *Graph[S, T]) GetAllEdges(copy bool) (edge EdgeCollection[T]) {
 	return getAllItems(g.edges, copy)
 }
 
-func MergeGraphs(graph1, graph2 Graph) (merged Graph, err error) {
+func MergeGraphs[S, T comparable](graph1, graph2 Graph[S, T]) (merged Graph[S, T], err error) {
 	vertices, err := MergeVertices(graph1.vertices, graph2.vertices)
 	if err != nil {
 		return

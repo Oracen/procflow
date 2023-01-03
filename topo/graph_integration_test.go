@@ -10,17 +10,17 @@ import (
 
 func TestGraphBuildFunctionality(t *testing.T) {
 
-	getVertices := func(count int) (testVertices []topo.Vertex) {
+	getVertices := func(count int) (testVertices []topo.Vertex[string]) {
 
-		testVertices = []topo.Vertex{}
+		testVertices = []topo.Vertex[string]{}
 		for idx := 0; idx < count; idx++ {
-			testVertices = append(testVertices, topo.Vertex{uuid.New().String(), topo.VertexData{uuid.New().String()}})
+			testVertices = append(testVertices, topo.Vertex[string]{uuid.New().String(), uuid.New().String()})
 		}
 		return
 	}
 
-	buildDefaultGraph := func() (graph topo.Graph, err error) {
-		graph = topo.CreateNewGraph()
+	buildDefaultGraph := func() (graph topo.Graph[string, string], err error) {
+		graph = topo.CreateNewGraph[string, string]()
 		for _, item := range getVertices(4) {
 			name := uuid.New().String()
 			err = graph.AddNewVertex(name, item)
@@ -28,7 +28,7 @@ func TestGraphBuildFunctionality(t *testing.T) {
 				return
 			}
 			for key := range graph.GetAllVertices(true) {
-				edge := topo.Edge{name, key, topo.EdgeData{InvocationName: "blah"}}
+				edge := topo.Edge[string]{name, key, "blah"}
 				err = graph.AddNewEdge(uuid.New().String(), edge)
 				if err != nil {
 					return
