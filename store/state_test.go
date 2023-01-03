@@ -23,14 +23,14 @@ func TestStateSystems(t *testing.T) {
 			}
 			state := createEmptyGlobalState[string]()
 			for idx := range strings {
-				state.addObject(&strings[idx])
+				state.AddObject(&strings[idx])
 			}
 
 			// Update basic obecs
 			strings[0] = "hello"
 			strings[4] = "miracle"
 
-			retrieved := state.getState()
+			retrieved := state.GetState()
 			// Check lengths same
 			assert.Len(t, retrieved, len(strings))
 
@@ -50,24 +50,26 @@ func TestStateSystems(t *testing.T) {
 			// Init constancs
 			numInstances := 5000
 			lock := sync.Mutex{}
+			lockWg := sync.WaitGroup{}
 
 			// Initialise test holders
 			var (
-				stringSingleton       globalState[string]
-				firstState, lastState *globalState[string]
+				stringSingleton       GlobalState[string]
+				firstState, lastState *GlobalState[string]
 			)
 
 			// Build a lot of backends in goroutines, add data as we do
 			for idx := 0; idx < numInstances; idx++ {
+				lockWg.Add(1)
 				counter := idx
 				go func() {
-					state := createGlobalSingleton(&stringSingleton, &lock)
-
+					state := CreateGlobalSingleton(&stringSingleton, &lock)
 					go func() {
+						defer lockWg.Done()
 						s1 := fmt.Sprint(counter)
 						s2 := "-" + s1
-						state.addObject(&s1)
-						state.addObject(&s2)
+						state.AddObject(&s1)
+						state.AddObject(&s2)
 					}()
 					if counter == 0 {
 						firstState = state
@@ -78,11 +80,12 @@ func TestStateSystems(t *testing.T) {
 				}()
 
 			}
+			lockWg.Wait()
 
 			// Check for singleton behaviour
-			copyFirst := firstState.getState()
-			copyLast := lastState.getState()
-			baseState := stringSingleton.getState()
+			copyFirst := firstState.GetState()
+			copyLast := lastState.GetState()
+			baseState := stringSingleton.GetState()
 
 			assert.Len(t, baseState, numInstances*2)
 			assert.Equal(t, copyFirst, copyLast)
