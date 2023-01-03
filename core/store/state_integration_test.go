@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Oracen/process-flow/store"
+	"github.com/Oracen/process-flow/core/store"
 	"github.com/stretchr/testify/assert"
 )
 
