@@ -13,7 +13,7 @@ func TestEdgeFunctions(t *testing.T) {
 	baseEdges := utEdgeCol{}
 	for idx := 0; idx < numEdges; idx++ {
 		key := fmt.Sprint(idx)
-		baseEdges[key] = Edge[edgeData]{key, key, edgeData{key}}
+		baseEdges[key] = utEdge{key, key, edgeData{key}}
 	}
 
 	sliceEdges := func(edges utEdgeCol, start, stop int) (sliced utEdgeCol) {
