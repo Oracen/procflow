@@ -47,14 +47,18 @@ func TestStateSystems(t *testing.T) {
 	t.Run(
 		"test singleton forms properly",
 		func(t *testing.T) {
+			// Init constancs
 			numInstances := 5000
+			lock := sync.Mutex{}
+			wg := sync.WaitGroup{}
+
+			// Initialise test holders
 			var (
 				stringSingleton       globalState[string]
 				firstState, lastState *globalState[string]
 			)
 
-			lock := sync.Mutex{}
-			wg := sync.WaitGroup{}
+			// Build a lot of backends in goroutines, add data as we do
 			for idx := 0; idx < numInstances; idx++ {
 				wg.Add(1)
 				counter := idx
