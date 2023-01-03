@@ -2,11 +2,6 @@ package store
 
 import "sync"
 
-var (
-	lock           = &sync.Mutex{}
-	singletonState = &globalState[Collector]{}
-)
-
 type State[T any] interface {
 	addObject(*T)
 	getState() []T
@@ -17,8 +12,13 @@ type globalState[T any] struct {
 	objects []*T
 }
 
-func CreateGlobalCollectorSingleton[T any]() State[Collector] {
-	return &globalState[Collector]{}
+func createGlobalSingleton[T any](singletonPtr *globalState[T], mu *sync.Mutex) (state *globalState[T]) {
+	mu.Lock()
+	defer mu.Unlock()
+	if singletonPtr == nil {
+		singletonPtr = &globalState[T]{}
+	}
+	return singletonPtr
 }
 
 func (g *globalState[T]) addObject(obj *T) {

@@ -1,6 +1,8 @@
 package store
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,6 +41,53 @@ func TestStateSystems(t *testing.T) {
 			for idx := range strings {
 				assert.NotSame(t, &strings[idx], &retrieved[idx])
 			}
+
+		},
+	)
+	t.Run(
+		"test singleton forms properly",
+		func(t *testing.T) {
+			numInstances := 5000
+			var (
+				stringSingleton       globalState[string]
+				firstState, lastState *globalState[string]
+			)
+
+			lock := sync.Mutex{}
+			wg := sync.WaitGroup{}
+			for idx := 0; idx < numInstances; idx++ {
+				wg.Add(1)
+				counter := idx
+				go func() {
+					state := createGlobalSingleton(&stringSingleton, &lock)
+
+					go func() {
+						defer wg.Done()
+						s1 := fmt.Sprint(counter)
+						s2 := "-" + s1
+						state.addObject(&s1)
+						state.addObject(&s2)
+
+					}()
+					if counter == 0 {
+						firstState = state
+					}
+					if counter == numInstances-1 {
+						lastState = state
+					}
+				}()
+
+			}
+			wg.Wait()
+
+			// Check for singleton behaviour
+			copyFirst := firstState.getState()
+			copyLast := lastState.getState()
+			baseState := stringSingleton.getState()
+
+			assert.Len(t, baseState, numInstances*2)
+			assert.Equal(t, copyFirst, copyLast)
+			assert.Equal(t, copyFirst, baseState)
 
 		},
 	)
