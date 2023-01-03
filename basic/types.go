@@ -1,12 +1,14 @@
 package basic
 
 import (
+	"github.com/Oracen/procflow/core/collection"
 	"github.com/Oracen/procflow/core/tracker"
 )
 
 type (
-	Node    = tracker.Node[string]
-	Tracker = tracker.Tracker[string]
+	BasicCollection = collection.MockCollectable[string]
+	Node            = tracker.Node[string]
+	Tracker         = tracker.Tracker[BasicCollection, string]
 )
 
 func RegisterTracker() Tracker {

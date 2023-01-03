@@ -1,24 +1,27 @@
 package tracker
 
+import "github.com/Oracen/procflow/core/collection"
+
 type Node[T comparable] struct {
 	nodeSite string
 	data     T
 }
 
-type Tracker[T comparable] struct {
+type Tracker[S any, T comparable] struct {
+	collector collection.Collector[T, S]
 }
 
-func RegisterTracker[T comparable]() Tracker[T] {
-	return Tracker[T]{}
+func RegisterTracker[S, T comparable]() Tracker[S, T] {
+	return Tracker[S, T]{}
 }
 
-func (t *Tracker[T]) StartFlow(name string, data T) Node[T] {
+func (t *Tracker[S, T]) StartFlow(name string, data T) Node[T] {
 	return Node[T]{name, data}
 }
 
-func (t *Tracker[T]) AddNode(name string, inputs []Node[T], data T) Node[T] {
+func (t *Tracker[S, T]) AddNode(name string, inputs []Node[T], data T) Node[T] {
 	return Node[T]{name, data}
 }
 
-func (t *Tracker[T]) EndFlow(name string, inputs []Node[T], data T) {
+func (t *Tracker[S, T]) EndFlow(name string, inputs []Node[T], data T) {
 }

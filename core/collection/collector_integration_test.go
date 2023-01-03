@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type MockCol = collection.MockCollectable
+type MockCol = collection.MockCollectable[int]
 
 func TestPublicApi(t *testing.T) {
 
