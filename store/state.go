@@ -30,8 +30,8 @@ func createGlobalSingleton[T any](singletonPtr *globalState[T], safetyLock *sync
 
 func (g *globalState[T]) addObject(obj *T) {
 	g.wg.Add(1)
-	g.mu.Lock()
 	defer g.wg.Done()
+	g.mu.Lock()
 	defer g.mu.Unlock()
 	g.objects = append(g.objects, obj)
 }

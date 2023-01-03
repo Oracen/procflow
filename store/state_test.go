@@ -68,7 +68,6 @@ func TestStateSystems(t *testing.T) {
 						s2 := "-" + s1
 						state.addObject(&s1)
 						state.addObject(&s2)
-
 					}()
 					if counter == 0 {
 						firstState = state
