@@ -11,7 +11,7 @@ var (
 	altVertexName         = "a random name"
 	defaultEdgeName       = "An Edge name"
 	altEdgeName           = "An Edge nom de gurre"
-	nonexistentVertexName = "Cest ne pas vertex"
+	nonexistentVertexName = "Cest ne pas une vertex"
 )
 
 func TestGraphCoreFunction(t *testing.T) {
