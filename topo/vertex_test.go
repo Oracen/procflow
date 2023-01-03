@@ -7,20 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type buildSlices struct {
-	start, stop int
-}
-
 func TestVertexFunctions(t *testing.T) {
 	numVertex := 6
-	baseVertices := VertexCollection[vertexData]{}
+	baseVertices := utVertCol{}
 	for idx := 0; idx < numVertex; idx++ {
 		key := fmt.Sprint(idx)
-		baseVertices[key] = Vertex[vertexData]{key, vertexData{key}}
+		baseVertices[key] = utVertex{key, vertexData{key}}
 	}
 
-	sliceVertices := func(vertices VertexCollection[vertexData], start, stop int) (sliced VertexCollection[vertexData]) {
-		sliced = VertexCollection[vertexData]{}
+	sliceVertices := func(vertices utVertCol, start, stop int) (sliced utVertCol) {
+		sliced = utVertCol{}
 		for idx := start; idx < stop; idx++ {
 			sliced[fmt.Sprint(idx)] = vertices[fmt.Sprint(idx)]
 		}
@@ -32,7 +28,7 @@ func TestVertexFunctions(t *testing.T) {
 		func(t *testing.T) {
 			slices := []buildSlices{{0, 4}, {4, numVertex}, {2, numVertex}}
 
-			var baseSlice VertexCollection[vertexData]
+			var baseSlice utVertCol
 			for idx, item := range slices {
 				slice := sliceVertices(baseVertices, item.start, item.stop)
 
@@ -63,8 +59,4 @@ func TestVertexFunctions(t *testing.T) {
 			assert.ErrorIs(t, err, errVertexMergeDuplicate)
 		},
 	)
-}
-
-type vertexData struct {
-	TaskName string
 }

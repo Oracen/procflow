@@ -8,19 +8,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type tvertex = topo.Vertex[string]
+type tedge = topo.Edge[string]
+type tgraph = topo.Graph[string, string]
+
+func createGraph() tgraph {
+	return topo.CreateNewGraph[string, string]()
+}
+
 func TestGraphBuildFunctionality(t *testing.T) {
 
-	getVertices := func(count int) (testVertices []topo.Vertex[string]) {
+	getVertices := func(count int) (testVertices []tvertex) {
 
-		testVertices = []topo.Vertex[string]{}
+		testVertices = []tvertex{}
 		for idx := 0; idx < count; idx++ {
-			testVertices = append(testVertices, topo.Vertex[string]{uuid.New().String(), uuid.New().String()})
+			testVertices = append(testVertices, tvertex{uuid.New().String(), uuid.New().String()})
 		}
 		return
 	}
 
-	buildDefaultGraph := func() (graph topo.Graph[string, string], err error) {
-		graph = topo.CreateNewGraph[string, string]()
+	buildDefaultGraph := func() (graph tgraph, err error) {
+		graph = createGraph()
 		for _, item := range getVertices(4) {
 			name := uuid.New().String()
 			err = graph.AddNewVertex(name, item)
@@ -28,7 +36,7 @@ func TestGraphBuildFunctionality(t *testing.T) {
 				return
 			}
 			for key := range graph.GetAllVertices(true) {
-				edge := topo.Edge[string]{name, key, "blah"}
+				edge := tedge{name, key, "blah"}
 				err = graph.AddNewEdge(uuid.New().String(), edge)
 				if err != nil {
 					return

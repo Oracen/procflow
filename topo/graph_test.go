@@ -6,19 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	defaultVertexName     = "A name"
-	altVertexName         = "a random name"
-	defaultEdgeName       = "An Edge name"
-	altEdgeName           = "An Edge nom de gurre"
-	nonexistentVertexName = "Cest ne pas une vertex"
-)
-
 func TestGraphCoreFunction(t *testing.T) {
 	t.Run(
 		"test graph creates correctly",
 		func(t *testing.T) {
-			graph := CreateNewGraph[vertexData, int]()
+			graph := CreateNewGraph[vertexData, edgeData]()
 			assert.Len(t, graph.vertices, 0)
 		},
 	)
@@ -107,7 +99,7 @@ func TestGraphEdgeFunction(t *testing.T) {
 		func(t *testing.T) {
 			graph := createBasicVertices()
 
-			edge := Edge[edgeData]{defaultVertexName, altVertexName, edgeData{}}
+			edge := utEdge{defaultVertexName, altVertexName, edgeData{}}
 			graph.AddNewEdge(defaultEdgeName, edge)
 			assert.Len(t, graph.edges, 1) // Sanity check
 
@@ -136,33 +128,4 @@ func TestGraphEdgeFunction(t *testing.T) {
 
 		},
 	)
-}
-
-type edgeBuild struct {
-	name string
-	edge Edge[edgeData]
-}
-
-func createDefaultVertex(name string) Vertex[vertexData] {
-	return Vertex[vertexData]{SiteName: name}
-}
-
-func initGraph() Graph[vertexData, edgeData] {
-	graph := CreateNewGraph[vertexData, edgeData]()
-	graph.AddNewVertex(defaultVertexName, createDefaultVertex(defaultVertexName))
-	return graph
-}
-
-func createBasicVertices() Graph[vertexData, edgeData] {
-	graph := initGraph()
-	vertex := createDefaultVertex(altVertexName)
-	graph.AddNewVertex(altVertexName, vertex)
-	return graph
-}
-
-func createEdgePair(name1, name2 string) []edgeBuild {
-	return []edgeBuild{
-		{defaultEdgeName, Edge[edgeData]{name1, name2, edgeData{}}},
-		{altEdgeName, Edge[edgeData]{name2, name1, edgeData{}}},
-	}
 }
