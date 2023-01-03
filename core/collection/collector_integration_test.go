@@ -3,7 +3,7 @@ package collection_test
 import (
 	"testing"
 
-	"github.com/Oracen/process-flow/core/collection"
+	"github.com/Oracen/procflow/core/collection"
 	"github.com/stretchr/testify/assert"
 )
 

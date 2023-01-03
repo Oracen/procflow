@@ -3,7 +3,7 @@ package topo_test
 import (
 	"testing"
 
-	"github.com/Oracen/process-flow/core/topo"
+	"github.com/Oracen/procflow/core/topo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

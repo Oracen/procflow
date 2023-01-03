@@ -8,11 +8,13 @@ var (
 	nonexistentVertexName = "Cest ne pas une vertex"
 )
 
-type utGraph = Graph[vertexData, edgeData]
-type utVertex = Vertex[vertexData]
-type utVertCol = VertexCollection[vertexData]
-type utEdgeCol = EdgeCollection[edgeData]
-type utEdge = Edge[edgeData]
+type (
+	utGraph   = Graph[vertexData, edgeData]
+	utVertex  = Vertex[vertexData]
+	utVertCol = VertexCollection[vertexData]
+	utEdgeCol = EdgeCollection[edgeData]
+	utEdge    = Edge[edgeData]
+)
 
 type vertexData struct {
 	TaskName string

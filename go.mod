@@ -1,4 +1,4 @@
-module github.com/Oracen/process-flow
+module github.com/Oracen/procflow
 
 go 1.19
 

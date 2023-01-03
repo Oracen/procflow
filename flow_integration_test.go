@@ -22,26 +22,26 @@ func proc1func3(string) error {
 func proc1() {
 	// No error branches should fail
 	tracker := basic.RegisterTracker()
-	nodeStart := tracker.StartFlow()
+	nodeStart := tracker.StartFlow("startpoint", "input")
 
-	node1 := tracker.RegisterNode("node1", []basic.Node{nodeStart})
+	node1 := tracker.AddNode("node1", []basic.Node{nodeStart}, "intermediate")
 	out1, err := proc1func1()
 
 	if err != nil {
-		tracker.TerminalNode("error1", []basic.Node{node1})
+		tracker.EndFlow("error1", []basic.Node{node1}, "error")
 		return
 	}
-	node2 := tracker.RegisterNode("node2", []basic.Node{node1})
+	node2 := tracker.AddNode("node2", []basic.Node{node1}, "intermediate")
 	out2, err2 := proc1func2(out1)
 	if err2 != nil {
-		tracker.TerminalNode("error2", []basic.Node{node1})
+		tracker.EndFlow("error2", []basic.Node{node1}, "error")
 	}
 
 	err3 := proc1func3(out2)
 	if err3 != nil {
-		tracker.TerminalNode("error3", []basic.Node{node2})
+		tracker.EndFlow("error3", []basic.Node{node2}, "error")
 	}
-	tracker.TerminalNode("end3", []basic.Node{node2})
+	tracker.EndFlow("end3", []basic.Node{node2}, "finish")
 
 }
 
