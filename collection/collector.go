@@ -5,7 +5,7 @@ import (
 )
 
 type Collectable[S, T any] interface {
-	AddRelationship(S) error
+	Add(S) error
 	Union(T) (T, error)
 }
 
@@ -22,5 +22,15 @@ func CreateNewCollector[S, T any](object Collectable[S, T]) Collector[S, T] {
 }
 
 func (c *Collector[S, T]) AddRelationship(obj S) (err error) {
+	deref := *(c.object)
+	err = deref.Add(obj)
+	if err == nil {
+		c.object = &deref
+	}
 	return
+}
+
+func (c *Collector[S, T]) UnionRelationships(obj T) (merged T, err error) {
+	deref := *(c.object)
+	return deref.Union(obj)
 }
