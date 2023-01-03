@@ -8,26 +8,36 @@ type State[T any] interface {
 }
 
 type globalState[T any] struct {
-	mu      sync.Mutex
 	objects []*T
+
+	mu sync.Mutex
+	wg sync.WaitGroup
 }
 
-func createGlobalSingleton[T any](singletonPtr *globalState[T], mu *sync.Mutex) (state *globalState[T]) {
-	mu.Lock()
-	defer mu.Unlock()
+func createEmptyGlobalState[T any]() (state globalState[T]) {
+	return globalState[T]{objects: []*T{}}
+}
+
+func createGlobalSingleton[T any](singletonPtr *globalState[T], safetyLock *sync.Mutex) (state *globalState[T]) {
+	safetyLock.Lock()
+	defer safetyLock.Unlock()
 	if singletonPtr == nil {
-		singletonPtr = &globalState[T]{}
+		state := createEmptyGlobalState[T]()
+		singletonPtr = &state
 	}
 	return singletonPtr
 }
 
 func (g *globalState[T]) addObject(obj *T) {
+	g.wg.Add(1)
 	g.mu.Lock()
+	defer g.wg.Done()
 	defer g.mu.Unlock()
 	g.objects = append(g.objects, obj)
 }
 
 func (g *globalState[T]) getState() (state []T) {
+	g.wg.Wait()
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	state = []T{}

@@ -21,7 +21,7 @@ func TestStateSystems(t *testing.T) {
 				"it",
 				"is",
 			}
-			state := globalState[string]{}
+			state := createEmptyGlobalState[string]()
 			for idx := range strings {
 				state.addObject(&strings[idx])
 			}
