@@ -1,6 +1,6 @@
-# BPMN-Flow
+# ProcFlow
 
-A project for automating mapping of system behaviour into BPMN notation.
+A project for automating mapping of system behaviour into process modelling notation.
 
 | :warning:  WARNING            |
 |-------------------------------|

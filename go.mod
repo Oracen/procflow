@@ -1,4 +1,4 @@
-module github.com/Oracen/bpmn-flow
+module github.com/Oracen/process-flow
 
 go 1.19
 
