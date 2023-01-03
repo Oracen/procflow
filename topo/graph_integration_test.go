@@ -16,7 +16,7 @@ func createGraph() tgraph {
 	return topo.CreateNewGraph[string, string]()
 }
 
-func TestGraphBuildFunctionality(t *testing.T) {
+func TestPublicApi(t *testing.T) {
 
 	getVertices := func(count int) (testVertices []tvertex) {
 

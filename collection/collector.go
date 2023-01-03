@@ -41,3 +41,18 @@ func (c *Collector[S, T]) UnionRelationships(obj T) (merged T, err error) {
 	deref := *(c.object)
 	return deref.Union(obj)
 }
+
+// Used as a placeholder for development
+type MockCollectable struct {
+	Collection []int
+}
+
+func (m *MockCollectable) Add(digit int) error {
+	m.Collection = append(m.Collection, digit)
+	return nil
+}
+
+func (m *MockCollectable) Union(other MockCollectable) (MockCollectable, error) {
+	collection := append(m.Collection, other.Collection...)
+	return MockCollectable{collection}, nil
+}

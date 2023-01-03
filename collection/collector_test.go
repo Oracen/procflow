@@ -12,8 +12,8 @@ func TestCollectorCanInitialise(t *testing.T) {
 		"test collector can add and merge nontrivial objects that implement Collectable",
 		func(t *testing.T) {
 			nExtra := 5000
-			collectable := mockCollectable{[]int{0}}
-			collection := CreateNewCollector[int, mockCollectable](&collectable)
+			collectable := MockCollectable{[]int{0}}
+			collection := CreateNewCollector[int, MockCollectable](&collectable)
 			for idx := 0; idx < nExtra; idx++ {
 				value := idx + 1
 				go func() {
@@ -23,24 +23,10 @@ func TestCollectorCanInitialise(t *testing.T) {
 
 			}
 
-			merged, err := collection.UnionRelationships(mockCollectable{[]int{9, 8}})
+			merged, err := collection.UnionRelationships(MockCollectable{[]int{9, 8}})
 			assert.Nil(t, err)
-			assert.Len(t, merged.collection, nExtra+3)
+			assert.Len(t, merged.Collection, nExtra+3)
 		},
 	)
 
-}
-
-type mockCollectable struct {
-	collection []int
-}
-
-func (m *mockCollectable) Add(digit int) error {
-	m.collection = append(m.collection, digit)
-	return nil
-}
-
-func (m *mockCollectable) Union(other mockCollectable) (mockCollectable, error) {
-	collection := append(m.collection, other.collection...)
-	return mockCollectable{collection}, nil
 }
