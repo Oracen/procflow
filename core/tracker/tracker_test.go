@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Oracen/procflow/core/collection"
+	"github.com/Oracen/procflow/core/topo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,15 +40,20 @@ func TestTracker(t *testing.T) {
 				return t.CloseTrace()
 			}
 
+			trivialGraph := func(t Tracker[GraphConstructor[string, string]]) bool {
+				return t.CloseTrace()
+			}
 			collectable := mockCollectable{Collection: []string{}}
-			collector := collection.CreateNewCollector[string, mockCollectable](&collectable)
-			basicTracker := RegisterBasicTracker(&collector)
+			basicCollector := collection.CreateNewCollector[string, mockCollectable](&collectable)
+			basicTracker := RegisterBasicTracker(&basicCollector)
 
 			assert.True(t, trivial(&basicTracker))
 
-			// graphTracker := RegisterGraphTracker(&collector)
+			graphCollectable := GraphCollectable[string, string]{Graph: topo.Graph[string, string]{}}
+			graphCollector := CreateNewGraphCollector(&graphCollectable)
+			graphTracker := RegisterGraphTracker(&graphCollector)
 
-			// assert.True(t, trivial(&basicTracker))
+			assert.True(t, trivialGraph(&graphTracker))
 
 		},
 	)
