@@ -43,16 +43,16 @@ func (c *Collector[S, T]) UnionRelationships(obj T) (merged T, err error) {
 }
 
 // Used as a placeholder for development
-type MockCollectable[T comparable] struct {
+type BasicCollectable[T comparable] struct {
 	Collection []T
 }
 
-func (m *MockCollectable[T]) Add(item T) error {
+func (m *BasicCollectable[T]) Add(item T) error {
 	m.Collection = append(m.Collection, item)
 	return nil
 }
 
-func (m *MockCollectable[T]) Union(other MockCollectable[T]) (MockCollectable[T], error) {
+func (m *BasicCollectable[T]) Union(other BasicCollectable[T]) (BasicCollectable[T], error) {
 	collection := append(m.Collection, other.Collection...)
-	return MockCollectable[T]{collection}, nil
+	return BasicCollectable[T]{collection}, nil
 }

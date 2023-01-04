@@ -9,9 +9,9 @@ import (
 )
 
 type (
-	utTracker       = Tracker[mockCollectable, string]
+	utTracker       = BasicTracker[mockCollectable, string]
 	utNodes         = []Node[string]
-	mockCollectable = collection.MockCollectable[string]
+	mockCollectable = collection.BasicCollectable[string]
 )
 
 func TestTracker(t *testing.T) {
