@@ -40,15 +40,15 @@ func TestTracker(t *testing.T) {
 				return t.CloseTrace()
 			}
 
-			trivialGraph := func(t Tracker[GraphConstructor[string, string]]) bool {
-				return t.CloseTrace()
-			}
 			collectable := mockCollectable{Collection: []string{}}
 			basicCollector := collection.CreateNewCollector[string, mockCollectable](&collectable)
 			basicTracker := RegisterBasicTracker(&basicCollector)
 
 			assert.True(t, trivial(&basicTracker))
 
+			trivialGraph := func(t Tracker[GraphConstructor[string, string]]) bool {
+				return t.CloseTrace()
+			}
 			graphCollectable := GraphCollectable[string, string]{Graph: topo.Graph[string, string]{}}
 			graphCollector := CreateNewGraphCollector(&graphCollectable)
 			graphTracker := RegisterGraphTracker(&graphCollector)
