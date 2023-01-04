@@ -12,32 +12,44 @@ type Node[T comparable] struct {
 	previous T
 }
 
-type BasicTracker[S any, T comparable] struct {
+type Tracker[T comparable] interface {
+	StartFlow(name string, data T) Node[T]
+	AddNode(name string, inputs []Node[T], data T) Node[T]
+	EndFlow(name string, inputs []Node[T], data T)
+	CloseTrace() bool
+}
+
+type BasicTracker[S comparable, T any] struct {
 	traceClosed bool
-	collector   collection.Collector[T, S]
+	collector   *collection.Collector[S, T]
 	wg          *sync.WaitGroup
 }
 
-func RegisterBasicTracker[S any, T comparable](collector collection.Collector[T, S]) BasicTracker[S, T] {
+func RegisterBasicTracker[S comparable, T any](collector *collection.Collector[S, T]) BasicTracker[S, T] {
 	wg := sync.WaitGroup{}
 	return BasicTracker[S, T]{traceClosed: false, collector: collector, wg: &wg}
 }
 
-func (t *BasicTracker[S, T]) StartFlow(name string, data T) Node[T] {
-	var empty T
+func (t *BasicTracker[S, T]) StartFlow(name string, data S) Node[S] {
+	var empty S
 	t.collector.AddRelationship(data)
-	return Node[T]{name, data, empty}
+	return Node[S]{name, data, empty}
 }
 
-func (t *BasicTracker[S, T]) AddNode(name string, inputs []Node[T], data T) Node[T] {
-	var empty T
-	return Node[T]{name, data, empty}
+func (t *BasicTracker[S, T]) AddNode(name string, inputs []Node[S], data S) Node[S] {
+	var empty S
+	return Node[S]{name, data, empty}
 }
 
-func (t *BasicTracker[S, T]) EndFlow(name string, inputs []Node[T], data T) {
+func (t *BasicTracker[S, T]) EndFlow(name string, inputs []Node[S], data S) {
 }
 
-func (t *BasicTracker[S, T]) CloseTrace() {
+func (t *BasicTracker[S, T]) CloseTrace() bool {
 	t.wg.Wait()
 	t.traceClosed = true
+	return t.traceClosed
+}
+
+func RegisterGraphTracker[S comparable, T any](collector *collection.Collector[S, T]) {
+
 }
