@@ -69,7 +69,17 @@ type graphConstructorInner[S, T comparable] struct {
 }
 
 type GraphCollectable[S, T comparable] struct {
-	Graph topo.Graph[S, T]
+	Graph  topo.Graph[S, T]
+	Errors map[string]string
+}
+
+func (g *GraphCollectable[S, T]) appendError(site, errorMsg string) {
+	g.Errors[site] = errorMsg
+}
+
+func CreateNewGraphCollectable[S, T comparable]() GraphCollectable[S, T] {
+	errors := map[string]string{}
+	return GraphCollectable[S, T]{Graph: topo.CreateNewGraph[S, T](), Errors: errors}
 }
 
 func (g *GraphCollectable[S, T]) Add(item graphConstructorInner[S, T]) error {
@@ -141,6 +151,16 @@ func RegisterGraphTracker[S comparable, T comparable](collector *GraphCollector[
 	return GraphTracker[S, T]{traceClosed: false, collector: collector, wg: &wg}
 }
 
+func (g *GraphTracker[S, T]) handleAddRelationship(inner graphConstructorInner[S, T]) {
+	if len(g.collector.object.Errors) > 0 {
+		return
+	}
+	err := g.collector.AddRelationship(inner)
+	if err != nil {
+		g.collector.object.appendError(inner.VertexName, fmt.Sprint(err))
+	}
+}
+
 func (g *GraphTracker[S, T]) StartFlow(data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
 	var emptyEdge topo.Edge[T]
 
@@ -150,7 +170,7 @@ func (g *GraphTracker[S, T]) StartFlow(data GraphConstructor[S, T]) Node[GraphCo
 		EdgeName:   "",
 		Edge:       emptyEdge,
 	}
-	g.collector.AddRelationship(inner)
+	g.handleAddRelationship(inner)
 	return Node[GraphConstructor[S, T]]{data}
 }
 
@@ -170,7 +190,7 @@ func constructGraphInner[S, T comparable](new, old GraphConstructor[S, T]) graph
 func (g *GraphTracker[S, T]) AddNode(inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
 	for _, item := range inputs {
 		inner := constructGraphInner(data, item.Data)
-		g.collector.AddRelationship(inner)
+		g.handleAddRelationship(inner)
 	}
 	return Node[GraphConstructor[S, T]]{data}
 }
@@ -178,7 +198,7 @@ func (g *GraphTracker[S, T]) AddNode(inputs []Node[GraphConstructor[S, T]], data
 func (g *GraphTracker[S, T]) EndFlow(inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) {
 	for _, item := range inputs {
 		inner := constructGraphInner(data, item.Data)
-		g.collector.AddRelationship(inner)
+		g.handleAddRelationship(inner)
 	}
 }
 

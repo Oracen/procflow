@@ -41,39 +41,6 @@ func TestTracker(t *testing.T) {
 	)
 
 	t.Run(
-		"test graph tracker creates nodes",
-		func(t *testing.T) {
-			wg := sync.WaitGroup{}
-
-			collectable := utGraphCollectable{Graph: topo.CreateNewGraph[string, string]()}
-			collector := CreateNewGraphCollector(&collectable)
-			tracker := GraphTracker[string, string]{traceClosed: false, collector: &collector, wg: &wg}
-
-			startData := utGraphConstructor{"start", utVertex{SiteName: "start name", Data: "no-data"}, ""}
-			node1 := tracker.StartFlow(startData)
-
-			intermediateData := utGraphConstructor{
-				"intermediate",
-				utVertex{SiteName: "intermediate name", Data: "some-data"},
-				"nil by",
-			}
-			node2 := tracker.AddNode([]utGraphNode{node1}, intermediateData)
-
-			endData := utGraphConstructor{
-				"end",
-				utVertex{SiteName: "end name", Data: "all-data"},
-				"shows over",
-			}
-			tracker.EndFlow([]utGraphNode{node2}, endData)
-
-			tracker.CloseTrace()
-			assert.True(t, tracker.traceClosed)
-			assert.Len(t, collectable.Graph.GetAllVertices(true), 3)
-			assert.Len(t, collectable.Graph.GetAllEdges(true), 2)
-		},
-	)
-
-	t.Run(
 		"test trackers properly implement interface",
 		func(t *testing.T) {
 			trivial := func(t Tracker[string]) bool {
@@ -95,6 +62,83 @@ func TestTracker(t *testing.T) {
 
 			assert.True(t, trivialGraph(&graphTracker))
 
+		},
+	)
+}
+
+func TestGraphTracker(t *testing.T) {
+	t.Run(
+		"test graph tracker creates nodes",
+		func(t *testing.T) {
+			wg := sync.WaitGroup{}
+
+			collectable := CreateNewGraphCollectable[string, string]()
+			collector := CreateNewGraphCollector(&collectable)
+			tracker := GraphTracker[string, string]{traceClosed: false, collector: &collector, wg: &wg}
+
+			startData1 := utGraphConstructor{
+				"start 1",
+				utVertex{SiteName: "start name", Data: "no-data"},
+				""}
+			startData2 := utGraphConstructor{
+				"start 2",
+				utVertex{SiteName: "start name 2", Data: "ditto-data"},
+				""}
+			node1a := tracker.StartFlow(startData1)
+			node1b := tracker.StartFlow(startData2)
+
+			intermediateData := utGraphConstructor{
+				"intermediate",
+				utVertex{SiteName: "intermediate name", Data: "some-data"},
+				"nil by",
+			}
+			node2 := tracker.AddNode([]utGraphNode{node1a, node1b}, intermediateData)
+
+			endData := utGraphConstructor{
+				"end",
+				utVertex{SiteName: "end name", Data: "all-data"},
+				"shows over",
+			}
+			tracker.EndFlow([]utGraphNode{node2}, endData)
+
+			tracker.CloseTrace()
+			assert.True(t, tracker.traceClosed)
+			assert.Len(t, collectable.Graph.GetAllVertices(true), 4)
+			assert.Len(t, collectable.Graph.GetAllEdges(true), 3)
+		},
+	)
+
+	t.Run(
+		"test graph tracker reports errors",
+		func(t *testing.T) {
+			wg := sync.WaitGroup{}
+
+			collectable := CreateNewGraphCollectable[string, string]()
+			collector := CreateNewGraphCollector(&collectable)
+			tracker := GraphTracker[string, string]{traceClosed: false, collector: &collector, wg: &wg}
+
+			startData1 := utGraphConstructor{
+				"start 1",
+				utVertex{SiteName: "start name", Data: "no-data"},
+				""}
+			startData2 := utGraphConstructor{
+				"start 1",
+				utVertex{SiteName: "start name", Data: "changed-data"},
+				""}
+			node1a := tracker.StartFlow(startData1)
+			node1b := tracker.StartFlow(startData2)
+
+			intermediateData := utGraphConstructor{
+				"intermediate",
+				utVertex{SiteName: "intermediate name", Data: "some-data"},
+				"nil by",
+			}
+			tracker.AddNode([]utGraphNode{node1a, node1b}, intermediateData)
+
+			tracker.CloseTrace()
+			assert.True(t, tracker.traceClosed)
+			assert.Len(t, collectable.Graph.GetAllVertices(true), 1)
+			assert.Len(t, collectable.Errors, 1)
 		},
 	)
 }
