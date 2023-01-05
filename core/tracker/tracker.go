@@ -1,6 +1,7 @@
 package tracker
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/Oracen/procflow/core/collection"
@@ -8,15 +9,14 @@ import (
 )
 
 type Node[T comparable] struct {
-	nodeSite string
-	data     T
-	previous T
+	Data T
+	// previous T
 }
 
 type Tracker[T comparable] interface {
-	StartFlow(name string, data T) Node[T]
-	AddNode(name string, inputs []Node[T], data T) Node[T]
-	EndFlow(name string, inputs []Node[T], data T)
+	StartFlow(data T) Node[T]
+	AddNode(inputs []Node[T], data T) Node[T]
+	EndFlow(inputs []Node[T], data T)
 	CloseTrace() bool
 }
 
@@ -31,20 +31,23 @@ func RegisterBasicTracker[S comparable, T any](collector *collection.Collector[S
 	return BasicTracker[S, T]{traceClosed: false, collector: collector, wg: &wg}
 }
 
-func (b *BasicTracker[S, T]) StartFlow(name string, data S) Node[S] {
-	var empty S
+func (b *BasicTracker[S, T]) StartFlow(data S) Node[S] {
 	b.collector.AddRelationship(data)
-	return Node[S]{name, data, empty}
+	return Node[S]{data}
 }
 
-func (b *BasicTracker[S, T]) AddNode(name string, inputs []Node[S], data S) Node[S] {
-	var empty S
-	b.collector.AddRelationship(data)
-	return Node[S]{name, data, empty}
+func (b *BasicTracker[S, T]) AddNode(inputs []Node[S], data S) Node[S] {
+	for range inputs {
+		b.collector.AddRelationship(data)
+	}
+
+	return Node[S]{data}
 }
 
-func (b *BasicTracker[S, T]) EndFlow(name string, inputs []Node[S], data S) {
-	b.collector.AddRelationship(data)
+func (b *BasicTracker[S, T]) EndFlow(inputs []Node[S], data S) {
+	for range inputs {
+		b.collector.AddRelationship(data)
+	}
 }
 
 func (b *BasicTracker[S, T]) CloseTrace() bool {
@@ -54,21 +57,31 @@ func (b *BasicTracker[S, T]) CloseTrace() bool {
 }
 
 type GraphConstructor[S, T comparable] struct {
-	Name   string
-	Vertex topo.Vertex[S]
-	Edge   topo.Edge[T]
+	Name     string
+	Vertex   topo.Vertex[S]
+	EdgeData T
+}
+type graphConstructorInner[S, T comparable] struct {
+	VertexName string
+	Vertex     topo.Vertex[S]
+	EdgeName   string
+	Edge       topo.Edge[T]
 }
 
 type GraphCollectable[S, T comparable] struct {
 	Graph topo.Graph[S, T]
 }
 
-func (g *GraphCollectable[S, T]) Add(item GraphConstructor[S, T]) error {
-	err := g.Graph.AddNewVertex(item.Name, item.Vertex)
+func (g *GraphCollectable[S, T]) Add(item graphConstructorInner[S, T]) error {
+	err := g.Graph.AddNewVertex(item.VertexName, item.Vertex)
 	if err != nil {
 		return err
 	}
-	err = g.Graph.AddNewEdge(item.Name, item.Edge)
+	if item.EdgeName == "" {
+		return nil
+	}
+
+	err = g.Graph.AddNewEdge(item.EdgeName, item.Edge)
 	if err != nil {
 		return err
 	}
@@ -95,12 +108,13 @@ func CreateNewGraphCollector[S comparable, T comparable](object *GraphCollectabl
 	return GraphCollector[S, T]{object: object, wg: &wg, mu: &mu}
 }
 
-func (c *GraphCollector[S, T]) AddRelationship(obj GraphConstructor[S, T]) (err error) {
+func (c *GraphCollector[S, T]) AddRelationship(obj graphConstructorInner[S, T]) (err error) {
 	c.wg.Add(1)
 	defer c.wg.Done()
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	deref := *(c.object)
+
 	err = deref.Add(obj)
 	if err == nil {
 		c.object = &deref
@@ -127,18 +141,45 @@ func RegisterGraphTracker[S comparable, T comparable](collector *GraphCollector[
 	return GraphTracker[S, T]{traceClosed: false, collector: collector, wg: &wg}
 }
 
-func (g *GraphTracker[S, T]) StartFlow(name string, data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
-	var empty GraphConstructor[S, T]
-	g.collector.AddRelationship(data)
-	return Node[GraphConstructor[S, T]]{name, data, empty}
+func (g *GraphTracker[S, T]) StartFlow(data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
+	var emptyEdge topo.Edge[T]
+
+	inner := graphConstructorInner[S, T]{
+		VertexName: data.Name,
+		Vertex:     data.Vertex,
+		EdgeName:   "",
+		Edge:       emptyEdge,
+	}
+	g.collector.AddRelationship(inner)
+	return Node[GraphConstructor[S, T]]{data}
 }
 
-func (g *GraphTracker[S, T]) AddNode(name string, inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
-	var empty GraphConstructor[S, T]
-	return Node[GraphConstructor[S, T]]{name, data, empty}
+func constructGraphInner[S, T comparable](new, old GraphConstructor[S, T]) graphConstructorInner[S, T] {
+	return graphConstructorInner[S, T]{
+		VertexName: new.Name,
+		Vertex:     new.Vertex,
+		EdgeName:   fmt.Sprintf("%s:%s", old.Name, new.Name),
+		Edge: topo.Edge[T]{
+			VertexFrom: old.Name,
+			VertexTo:   new.Name,
+			Data:       new.EdgeData,
+		},
+	}
 }
 
-func (g *GraphTracker[S, T]) EndFlow(name string, inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) {
+func (g *GraphTracker[S, T]) AddNode(inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
+	for _, item := range inputs {
+		inner := constructGraphInner(data, item.Data)
+		g.collector.AddRelationship(inner)
+	}
+	return Node[GraphConstructor[S, T]]{data}
+}
+
+func (g *GraphTracker[S, T]) EndFlow(inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) {
+	for _, item := range inputs {
+		inner := constructGraphInner(data, item.Data)
+		g.collector.AddRelationship(inner)
+	}
 }
 
 func (g *GraphTracker[S, T]) CloseTrace() bool {
