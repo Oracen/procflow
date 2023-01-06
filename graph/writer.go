@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/dominikbraun/graph"
@@ -9,7 +10,8 @@ import (
 )
 
 func ExportGraphDot(graph graph.Graph[string, string], filename string) {
-	file, err := os.Create(filename)
+	// dot -Tsvg -O filename.gv
+	file, err := os.Create(fmt.Sprintf("%s.gv", filename))
 	if err != nil {
 		log.Error("graph file creation failed with error: " + err.Error())
 	}
