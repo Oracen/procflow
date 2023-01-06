@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ExportGraphDot[K comparable, T any](graph graph.Graph[K, T], filename string) {
+func ExportGraphDot(graph graph.Graph[string, string], filename string) {
 	file, err := os.Create(filename)
 	if err != nil {
 		log.Error("graph file creation failed with error: " + err.Error())

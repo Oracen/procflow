@@ -12,7 +12,7 @@ func TestConvertToGraphPackage(t *testing.T) {
 		func(t *testing.T) {
 			tracker := RegisterTracker()
 			node := Start(&tracker, "start", "Start point")
-			node = Task(&tracker, []Node{node}, "task", "A task")
+			node = Task(&tracker, []Node{node}, "task", "A task name is longer")
 			End(&tracker, []Node{node}, "end", "Endpoint", false)
 			tracker.CloseTrace()
 
