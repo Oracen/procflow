@@ -29,7 +29,7 @@ func TestTracker(t *testing.T) {
 
 			collectable := mockCollectable{Collection: []string{}}
 			collector := collection.CreateNewCollector[string, mockCollectable](&collectable)
-			tracker := utBasicTracker{traceClosed: true, collector: &collector, wg: &wg}
+			tracker := utBasicTracker{traceClosed: true, Collector: &collector, wg: &wg}
 			node1 := tracker.StartFlow("input")
 			node2 := tracker.AddNode(utBasicNodes{node1}, "intermediate")
 			tracker.EndFlow(utBasicNodes{node2}, "endpoint")
@@ -74,7 +74,7 @@ func TestGraphTracker(t *testing.T) {
 
 			collectable := CreateNewGraphCollectable[string, string]()
 			collector := CreateNewGraphCollector(&collectable)
-			tracker := GraphTracker[string, string]{traceClosed: false, collector: &collector, wg: &wg}
+			tracker := GraphTracker[string, string]{traceClosed: false, Collector: &collector, wg: &wg}
 
 			startData1 := utGraphConstructor{
 				"start 1",
@@ -115,7 +115,7 @@ func TestGraphTracker(t *testing.T) {
 
 			collectable := CreateNewGraphCollectable[string, string]()
 			collector := CreateNewGraphCollector(&collectable)
-			tracker := GraphTracker[string, string]{traceClosed: false, collector: &collector, wg: &wg}
+			tracker := GraphTracker[string, string]{traceClosed: false, Collector: &collector, wg: &wg}
 
 			startData1 := utGraphConstructor{
 				"start 1",

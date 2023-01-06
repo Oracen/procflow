@@ -10,7 +10,7 @@ type Collectable[S, T any] interface {
 }
 
 type Collector[S, T any] struct {
-	object *Collectable[S, T]
+	Object *Collectable[S, T]
 	wg     *sync.WaitGroup
 	mu     *sync.Mutex
 }
@@ -18,7 +18,7 @@ type Collector[S, T any] struct {
 func CreateNewCollector[S, T any](object Collectable[S, T]) Collector[S, T] {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
-	return Collector[S, T]{object: &object, wg: &wg, mu: &mu}
+	return Collector[S, T]{Object: &object, wg: &wg, mu: &mu}
 }
 
 func (c *Collector[S, T]) AddRelationship(obj S) (err error) {
@@ -26,10 +26,10 @@ func (c *Collector[S, T]) AddRelationship(obj S) (err error) {
 	defer c.wg.Done()
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	deref := *(c.object)
+	deref := *(c.Object)
 	err = deref.Add(obj)
 	if err == nil {
-		c.object = &deref
+		c.Object = &deref
 	}
 	return
 }
@@ -38,7 +38,7 @@ func (c *Collector[S, T]) UnionRelationships(obj T) (merged T, err error) {
 	c.wg.Wait()
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	deref := *(c.object)
+	deref := *(c.Object)
 	return deref.Union(obj)
 }
 

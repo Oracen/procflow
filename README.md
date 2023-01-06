@@ -37,3 +37,7 @@ This is not a call graph. You have call graphs to serve as call graphs. However,
 ## Installation
 
 Don't. Not yet.
+
+## External Dependencies
+
+- Golang `graph` library: https://github.com/dominikbraun/graph

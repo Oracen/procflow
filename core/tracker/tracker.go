@@ -22,23 +22,23 @@ type Tracker[T comparable] interface {
 
 type BasicTracker[S comparable, T any] struct {
 	traceClosed bool
-	collector   *collection.Collector[S, T]
+	Collector   *collection.Collector[S, T]
 	wg          *sync.WaitGroup
 }
 
 func RegisterBasicTracker[S comparable, T any](collector *collection.Collector[S, T]) BasicTracker[S, T] {
 	wg := sync.WaitGroup{}
-	return BasicTracker[S, T]{traceClosed: false, collector: collector, wg: &wg}
+	return BasicTracker[S, T]{traceClosed: false, Collector: collector, wg: &wg}
 }
 
 func (b *BasicTracker[S, T]) StartFlow(data S) Node[S] {
-	b.collector.AddRelationship(data)
+	b.Collector.AddRelationship(data)
 	return Node[S]{data}
 }
 
 func (b *BasicTracker[S, T]) AddNode(inputs []Node[S], data S) Node[S] {
 	for range inputs {
-		b.collector.AddRelationship(data)
+		b.Collector.AddRelationship(data)
 	}
 
 	return Node[S]{data}
@@ -46,7 +46,7 @@ func (b *BasicTracker[S, T]) AddNode(inputs []Node[S], data S) Node[S] {
 
 func (b *BasicTracker[S, T]) EndFlow(inputs []Node[S], data S) {
 	for range inputs {
-		b.collector.AddRelationship(data)
+		b.Collector.AddRelationship(data)
 	}
 }
 
@@ -107,7 +107,7 @@ func (g *GraphCollectable[S, T]) Union(other GraphCollectable[S, T]) (merged Gra
 }
 
 type GraphCollector[S comparable, T comparable] struct {
-	object *GraphCollectable[S, T]
+	Object *GraphCollectable[S, T]
 	wg     *sync.WaitGroup
 	mu     *sync.Mutex
 }
@@ -115,7 +115,7 @@ type GraphCollector[S comparable, T comparable] struct {
 func CreateNewGraphCollector[S comparable, T comparable](object *GraphCollectable[S, T]) GraphCollector[S, T] {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
-	return GraphCollector[S, T]{object: object, wg: &wg, mu: &mu}
+	return GraphCollector[S, T]{Object: object, wg: &wg, mu: &mu}
 }
 
 func (c *GraphCollector[S, T]) AddRelationship(obj graphConstructorInner[S, T]) (err error) {
@@ -123,11 +123,11 @@ func (c *GraphCollector[S, T]) AddRelationship(obj graphConstructorInner[S, T]) 
 	defer c.wg.Done()
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	deref := *(c.object)
+	deref := *(c.Object)
 
 	err = deref.Add(obj)
 	if err == nil {
-		c.object = &deref
+		c.Object = &deref
 	}
 	return
 }
@@ -136,28 +136,28 @@ func (c *GraphCollector[S, T]) UnionRelationships(obj GraphCollectable[S, T]) (m
 	c.wg.Wait()
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	deref := *(c.object)
+	deref := *(c.Object)
 	return deref.Union(obj)
 }
 
 type GraphTracker[S comparable, T comparable] struct {
 	traceClosed bool
-	collector   *GraphCollector[S, T]
+	Collector   *GraphCollector[S, T]
 	wg          *sync.WaitGroup
 }
 
 func RegisterGraphTracker[S comparable, T comparable](collector *GraphCollector[S, T]) GraphTracker[S, T] {
 	wg := sync.WaitGroup{}
-	return GraphTracker[S, T]{traceClosed: false, collector: collector, wg: &wg}
+	return GraphTracker[S, T]{traceClosed: false, Collector: collector, wg: &wg}
 }
 
 func (g *GraphTracker[S, T]) handleAddRelationship(inner graphConstructorInner[S, T]) {
-	if len(g.collector.object.Errors) > 0 {
+	if len(g.Collector.Object.Errors) > 0 {
 		return
 	}
-	err := g.collector.AddRelationship(inner)
+	err := g.Collector.AddRelationship(inner)
 	if err != nil {
-		g.collector.object.appendError(inner.VertexName, fmt.Sprint(err))
+		g.Collector.Object.appendError(inner.VertexName, fmt.Sprint(err))
 	}
 }
 

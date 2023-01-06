@@ -6,13 +6,13 @@ import (
 )
 
 type (
-	BasicCollectable = collection.BasicCollectable[string]
-	Node             = tracker.Node[string]
-	Tracker          = tracker.BasicTracker[string, BasicCollectable]
+	Collectable = collection.BasicCollectable[string]
+	Node        = tracker.Node[string]
+	Tracker     = tracker.BasicTracker[string, Collectable]
 )
 
 func RegisterTracker() Tracker {
-	collectable := BasicCollectable{Collection: []string{}}
-	collector := collection.CreateNewCollector[string, BasicCollectable](&collectable)
+	collectable := Collectable{Collection: []string{}}
+	collector := collection.CreateNewCollector[string, Collectable](&collectable)
 	return tracker.RegisterBasicTracker(&collector)
 }
