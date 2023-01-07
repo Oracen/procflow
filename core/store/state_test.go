@@ -1,12 +1,28 @@
 package store
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type mockExporter struct {
+	writer io.Writer
+	output string
+}
+
+func (m *mockExporter) ExportRun(_ string) {
+	m.writer.Write([]byte(m.output))
+}
+
+func createMockExporter(writer io.Writer, output string) Exporter {
+	exporter := mockExporter{writer: writer, output: output}
+	return &exporter
+}
 
 func TestStateSystems(t *testing.T) {
 	t.Run(
@@ -93,5 +109,24 @@ func TestStateSystems(t *testing.T) {
 
 		},
 	)
+	t.Run(
+		"test state manager",
+		func(t *testing.T) {
+			out1, out2, out3 := "writing some output", "not to be seen", "i hope they find me"
+			buf1 := &bytes.Buffer{}
+			buf2 := &bytes.Buffer{}
+			buf3 := &bytes.Buffer{}
+			manager := CreateNewStateManager()
+			manager.AddExporter("bob", createMockExporter(buf1, out1))
+			manager.AddExporter("bob", createMockExporter(buf2, out2))
+			manager.AddExporter("jane", createMockExporter(buf3, out3))
 
+			manager.RunExport("/some/path")
+
+			assert.Equal(t, buf1.String(), out1)
+			assert.NotContains(t, buf2.String(), out2)
+			assert.Equal(t, buf3.String(), out3)
+
+		},
+	)
 }
