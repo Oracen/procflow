@@ -37,8 +37,8 @@ func EndingVertex(name, parentFlow string, isError bool) Vertex {
 			Colour:      col,
 			Shape:       shapes.ELLIPSE,
 			ParentFlow:  parentFlow,
-			IsFlowStart: true,
-			IsFlowEnd:   false,
+			IsFlowStart: false,
+			IsFlowEnd:   true,
 		},
 	}
 }
