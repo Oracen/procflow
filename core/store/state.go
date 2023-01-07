@@ -1,6 +1,62 @@
 package store
 
-import "sync"
+import (
+	"sync"
+)
+
+type Exporter interface {
+	ExportRun(string)
+}
+
+type stateManager struct {
+	useGlobalState bool
+	trackState     bool
+	lock           sync.Mutex
+	exporters      map[string]Exporter
+}
+
+func (s *stateManager) EnableUseGlobalState() {
+	s.useGlobalState = true
+}
+
+func (s *stateManager) EnableTrackState() {
+	s.trackState = true
+}
+
+func (s *stateManager) UseGlobalState() bool {
+	return s.useGlobalState
+}
+
+func (s *stateManager) TrackState() bool {
+	return s.trackState
+}
+
+func (s *stateManager) GetLock() *sync.Mutex {
+	return &s.lock
+}
+
+func (s *stateManager) AddExporter(name string, exporter Exporter) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	_, ok := s.exporters[name]
+	if !ok {
+		s.exporters[name] = exporter
+	}
+}
+
+func (s *stateManager) RunExport(filepath string) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	for _, value := range s.exporters {
+		value.ExportRun(filepath)
+	}
+}
+
+func CreateNewStateManager() stateManager {
+	return stateManager{false, false, sync.Mutex{}, map[string]Exporter{}}
+}
+
+var StateManager = CreateNewStateManager()
 
 type State[T any] interface {
 	addObject(*T)

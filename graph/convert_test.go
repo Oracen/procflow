@@ -1,14 +1,19 @@
 package graph
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"testing"
 
 	"github.com/Oracen/procflow/core/constants"
+	"github.com/Oracen/procflow/core/store"
+	"github.com/Oracen/procflow/core/tracker"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertToGraphPackage(t *testing.T) {
+
 	t.Run(
 		"test node name conversion functions",
 		func(t *testing.T) {
@@ -62,6 +67,21 @@ func TestConvertToGraphPackage(t *testing.T) {
 			assert.Equal(t, 6, dotGraph.Size())
 			_, err := dotGraph.Vertex("startInner")
 			assert.Nil(t, err)
+		},
+	)
+
+	t.Run(
+		"test exporter writes",
+		func(t *testing.T) {
+			var mockSingleton Singleton
+			collectable := tracker.CreateNewGraphCollectable[VertexStyle, EdgeStyle]()
+			storage := store.CreateGlobalSingleton(&mockSingleton, store.StateManager.GetLock())
+			storage.AddObject(&collectable)
+
+			buffer := &bytes.Buffer{}
+			export := exporter{storage, func(string) io.Writer { return buffer }}
+			export.ExportRun("file")
+			assert.Contains(t, buffer.String(), "strict digraph")
 		},
 	)
 }

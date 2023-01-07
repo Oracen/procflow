@@ -1,9 +1,38 @@
 package graph
 
 import (
+	"io"
+	"log"
+
 	"github.com/Oracen/procflow/core/constants"
 	"github.com/dominikbraun/graph"
 )
+
+type exporter struct {
+	singleton *Singleton
+	fsHandler func(string) io.Writer
+}
+
+func (e *exporter) ExportRun(filename string) {
+	var collected Collectable
+
+	outputs := e.singleton.GetState()
+	for idx, item := range outputs {
+		if idx == 0 {
+			collected = item
+			continue
+		}
+		merged, err := collected.Union(item)
+		if err != nil {
+			log.Fatal("Fatal error in procflow.graph export")
+		}
+		collected = merged
+
+	}
+	dotGraph := Convert(collected.Graph)
+	fileHandle := e.fsHandler(filename)
+	ExportGraphDot(dotGraph, fileHandle)
+}
 
 func Convert(graphData Graph) (dotGraph graph.Graph[string, string]) {
 	dotGraph = graph.New(graph.StringHash, graph.Directed())

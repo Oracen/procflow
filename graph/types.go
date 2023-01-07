@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"github.com/Oracen/procflow/core/store"
 	"github.com/Oracen/procflow/core/topo"
 	"github.com/Oracen/procflow/core/tracker"
 )
@@ -14,6 +15,7 @@ type (
 	Node        = tracker.Node[Constructor]
 	Graph       = topo.Graph[VertexStyle, EdgeStyle]
 	Tracker     = tracker.GraphTracker[VertexStyle, EdgeStyle]
+	Singleton   = store.GlobalState[Collectable]
 )
 
 type VertexStyle struct {
