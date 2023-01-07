@@ -141,14 +141,23 @@ func (c *GraphCollector[S, T]) UnionRelationships(obj GraphCollectable[S, T]) (m
 }
 
 type GraphTracker[S comparable, T comparable] struct {
-	traceClosed bool
-	Collector   *GraphCollector[S, T]
-	wg          *sync.WaitGroup
+	traceClosed    bool
+	Collector      *GraphCollector[S, T]
+	NameParentNode string
+	wg             *sync.WaitGroup
 }
 
-func RegisterGraphTracker[S comparable, T comparable](collector *GraphCollector[S, T]) GraphTracker[S, T] {
+func RegisterGraphTracker[S comparable, T comparable](
+	collector *GraphCollector[S, T],
+	parentNode string,
+) GraphTracker[S, T] {
 	wg := sync.WaitGroup{}
-	return GraphTracker[S, T]{traceClosed: false, Collector: collector, wg: &wg}
+	return GraphTracker[S, T]{
+		traceClosed:    false,
+		Collector:      collector,
+		NameParentNode: parentNode,
+		wg:             &wg,
+	}
 }
 
 func (g *GraphTracker[S, T]) handleAddRelationship(inner graphConstructorInner[S, T]) {

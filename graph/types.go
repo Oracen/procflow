@@ -17,16 +17,13 @@ type (
 )
 
 type VertexStyle struct {
-	Colour string
-	Shape  string
+	Colour      string
+	Shape       string
+	ParentFlow  string
+	IsFlowStart bool
+	IsFlowEnd   bool
 }
 
 type EdgeStyle struct {
 	Colour string
-}
-
-func RegisterTracker() Tracker {
-	collectable := tracker.CreateNewGraphCollectable[VertexStyle, EdgeStyle]()
-	collector := tracker.CreateNewGraphCollector(&collectable)
-	return tracker.RegisterGraphTracker(&collector)
 }

@@ -58,7 +58,7 @@ func TestTracker(t *testing.T) {
 			}
 			graphCollectable := utGraphCollectable{Graph: utGraph{}}
 			graphCollector := CreateNewGraphCollector(&graphCollectable)
-			graphTracker := RegisterGraphTracker(&graphCollector)
+			graphTracker := RegisterGraphTracker(&graphCollector, "parent")
 
 			assert.True(t, trivialGraph(&graphTracker))
 
