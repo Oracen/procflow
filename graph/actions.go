@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/Oracen/procflow/core/constants"
@@ -29,10 +30,10 @@ func mockStateManagement() {
 	StateManager = &stateManager
 }
 
-func registerGlobal(singletonPointer *Singleton, collectable *Collectable) *exporter {
+func registerGlobal(singletonPointer *Singleton, collectable *Collectable, writer func(string) io.Writer) *exporter {
 	storage := store.CreateGlobalSingleton(singletonPointer, store.StateManager.GetLock())
 	storage.AddObject(collectable)
-	export := exporter{storage, CreateFile}
+	export := exporter{storage, writer}
 	return &export
 }
 
@@ -44,7 +45,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 
 	if StateManager.UseGlobalState() {
 		// If shared state enabled, use the singleton to bring the object in
-		export := registerGlobal(&singletonPtr, &collectable)
+		export := registerGlobal(&singletonPtr, &collectable, CreateFile)
 		StateManager.AddExporter("graph", export)
 	}
 	if parentName == "" || !ok {

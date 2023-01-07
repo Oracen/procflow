@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/Oracen/procflow/core/constants"
-	"github.com/Oracen/procflow/core/store"
 	"github.com/Oracen/procflow/core/tracker"
 	"github.com/stretchr/testify/assert"
 )
@@ -75,11 +74,9 @@ func TestConvertToGraphPackage(t *testing.T) {
 		func(t *testing.T) {
 			var mockSingleton Singleton
 			collectable := tracker.CreateNewGraphCollectable[VertexStyle, EdgeStyle]()
-			storage := store.CreateGlobalSingleton(&mockSingleton, store.StateManager.GetLock())
-			storage.AddObject(&collectable)
-
 			buffer := &bytes.Buffer{}
-			export := exporter{storage, func(string) io.Writer { return buffer }}
+
+			export := registerGlobal(&mockSingleton, &collectable, func(string) io.Writer { return buffer })
 			export.ExportRun("file")
 			assert.Contains(t, buffer.String(), "strict digraph")
 		},
