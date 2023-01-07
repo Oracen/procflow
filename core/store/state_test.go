@@ -124,7 +124,7 @@ func TestStateSystems(t *testing.T) {
 			manager.RunExport("/some/path")
 
 			assert.Equal(t, buf1.String(), out1)
-			assert.NotContains(t, buf2.String(), out2)
+			assert.Equal(t, buf2.String(), "")
 			assert.Equal(t, buf3.String(), out3)
 
 		},
