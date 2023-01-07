@@ -7,6 +7,9 @@ import (
 type Collectable[S, T any] interface {
 	Add(S) error
 	Union(T) (T, error)
+	AddTask()
+	FinishTask()
+	WaitForFinish()
 }
 
 type Collector[S, T any] struct {
@@ -55,4 +58,15 @@ func (m *BasicCollectable[T]) Add(item T) error {
 func (m *BasicCollectable[T]) Union(other BasicCollectable[T]) (BasicCollectable[T], error) {
 	collection := append(m.Collection, other.Collection...)
 	return BasicCollectable[T]{collection}, nil
+}
+
+func (b *BasicCollectable[T]) AddTask() {
+
+}
+
+func (b *BasicCollectable[T]) FinishTask() {
+
+}
+func (b *BasicCollectable[T]) WaitForFinish() {
+
 }

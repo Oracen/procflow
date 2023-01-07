@@ -71,6 +71,7 @@ type graphConstructorInner[S, T comparable] struct {
 type GraphCollectable[S, T comparable] struct {
 	Graph  topo.Graph[S, T]
 	Errors map[string]string
+	Wg     *sync.WaitGroup
 }
 
 func (g *GraphCollectable[S, T]) appendError(site, errorMsg string) {
@@ -79,7 +80,8 @@ func (g *GraphCollectable[S, T]) appendError(site, errorMsg string) {
 
 func CreateNewGraphCollectable[S, T comparable]() GraphCollectable[S, T] {
 	errors := map[string]string{}
-	return GraphCollectable[S, T]{Graph: topo.CreateNewGraph[S, T](), Errors: errors}
+	wg := sync.WaitGroup{}
+	return GraphCollectable[S, T]{Graph: topo.CreateNewGraph[S, T](), Errors: errors, Wg: &wg}
 }
 
 func (g *GraphCollectable[S, T]) Add(item graphConstructorInner[S, T]) error {
@@ -104,6 +106,17 @@ func (g *GraphCollectable[S, T]) Union(other GraphCollectable[S, T]) (merged Gra
 		return
 	}
 	return GraphCollectable[S, T]{Graph: collection}, nil
+}
+
+func (g *GraphCollectable[S, T]) AddTask() {
+	g.Wg.Add(1)
+}
+
+func (g *GraphCollectable[S, T]) FinishTask() {
+	g.Wg.Done()
+}
+func (g *GraphCollectable[S, T]) WaitForFinish() {
+	g.Wg.Wait()
 }
 
 type GraphCollector[S comparable, T comparable] struct {
@@ -152,6 +165,7 @@ func RegisterGraphTracker[S comparable, T comparable](
 	parentNode string,
 ) GraphTracker[S, T] {
 	wg := sync.WaitGroup{}
+	collector.Object.AddTask()
 	return GraphTracker[S, T]{
 		traceClosed:    false,
 		Collector:      collector,
@@ -213,6 +227,7 @@ func (g *GraphTracker[S, T]) EndFlow(inputs []Node[GraphConstructor[S, T]], data
 
 func (g *GraphTracker[S, T]) CloseTrace() bool {
 	g.wg.Wait()
+	g.Collector.Object.FinishTask()
 	g.traceClosed = true
 	return g.traceClosed
 }

@@ -18,6 +18,7 @@ func (e *exporter) ExportRun(filename string) {
 
 	outputs := e.singleton.GetState()
 	for idx, item := range outputs {
+		item.WaitForFinish()
 		if idx == 0 {
 			collected = item
 			continue

@@ -47,6 +47,7 @@ func TestTracker(t *testing.T) {
 				return t.CloseTrace()
 			}
 
+			wgDummy := sync.WaitGroup{}
 			collectable := mockCollectable{Collection: []string{}}
 			basicCollector := collection.CreateNewCollector[string, mockCollectable](&collectable)
 			basicTracker := RegisterBasicTracker(&basicCollector)
@@ -56,7 +57,7 @@ func TestTracker(t *testing.T) {
 			trivialGraph := func(t Tracker[utGraphConstructor]) bool {
 				return t.CloseTrace()
 			}
-			graphCollectable := utGraphCollectable{Graph: utGraph{}}
+			graphCollectable := utGraphCollectable{Graph: utGraph{}, Wg: &wgDummy}
 			graphCollector := CreateNewGraphCollector(&graphCollectable)
 			graphTracker := RegisterGraphTracker(&graphCollector, "parent")
 
@@ -75,7 +76,7 @@ func TestGraphTracker(t *testing.T) {
 			collectable := CreateNewGraphCollectable[string, string]()
 			collector := CreateNewGraphCollector(&collectable)
 			tracker := GraphTracker[string, string]{traceClosed: false, Collector: &collector, wg: &wg}
-
+			collectable.AddTask()
 			startData1 := utGraphConstructor{
 				"start 1",
 				utVertex{SiteName: "start name", Data: "no-data"},
@@ -116,7 +117,7 @@ func TestGraphTracker(t *testing.T) {
 			collectable := CreateNewGraphCollectable[string, string]()
 			collector := CreateNewGraphCollector(&collectable)
 			tracker := GraphTracker[string, string]{traceClosed: false, Collector: &collector, wg: &wg}
-
+			collectable.AddTask()
 			startData1 := utGraphConstructor{
 				"start 1",
 				utVertex{SiteName: "start name", Data: "no-data"},
