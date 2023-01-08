@@ -36,6 +36,7 @@ func (e *exporter) ExportRun(filename string) {
 	ExportGraphDot(dotGraph, fileHandle)
 }
 
+// Conversion function to map from topo.graph to exportable graphviz format
 func Convert(graphData Graph) (dotGraph graph.Graph[string, string]) {
 	dotGraph = graph.New(graph.StringHash, graph.Directed())
 

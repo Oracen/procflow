@@ -8,17 +8,25 @@ import (
 )
 
 type (
-	Errors      = []string
+	// Collector object for shared state
 	Constructor = tracker.GraphConstructor[VertexStyle, EdgeStyle]
-	Vertex      = topo.Vertex[VertexStyle]
-	Edge        = topo.Edge[EdgeStyle]
-	Collection  = collections.GraphCollector[VertexStyle, EdgeStyle]
-	Node        = tracker.Node[Constructor]
-	Graph       = topo.Graph[VertexStyle, EdgeStyle]
-	Tracker     = tracker.GraphTracker[VertexStyle, EdgeStyle]
-	Singleton   = store.GlobalState[Collection]
+	// Vertex format required for graphviz constructor
+	Vertex = topo.Vertex[VertexStyle]
+	// Edge format required for graphviz constructor
+	Edge = topo.Edge[EdgeStyle]
+	// Collector object for shared state
+	Collection = collections.GraphCollector[VertexStyle, EdgeStyle]
+	// Tracking data object
+	Node = tracker.Node[Constructor]
+	// Data storage maps for collector
+	Graph = topo.Graph[VertexStyle, EdgeStyle]
+	// String node-based flow tracker
+	Tracker = tracker.GraphTracker[VertexStyle, EdgeStyle]
+	// Shared memory format for graph tracker
+	Singleton = store.GlobalState[Collection]
 )
 
+// Vertex styling parameters for graph conversion
 type VertexStyle struct {
 	Colour      string
 	Shape       string
@@ -26,6 +34,7 @@ type VertexStyle struct {
 	IsFlowStart bool
 }
 
+// Edge styling parameters for graph conversion
 type EdgeStyle struct {
 	Colour string
 }

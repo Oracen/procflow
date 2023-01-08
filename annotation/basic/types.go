@@ -7,10 +7,14 @@ import (
 )
 
 type (
-	Errors     = []string
+	// Collector object for shared state
 	Collection = collections.BasicCollector[string]
-	Node       = tracker.Node[string]
-	Array      = []string
-	Tracker    = tracker.BasicTracker[string]
-	Singleton  = store.GlobalState[Collection]
+	// Tracking data object
+	Node = tracker.Node[string]
+	// Data storage array for collector
+	Array = []string
+	// String node-based flow tracker
+	Tracker = tracker.BasicTracker[string]
+	// Shared memory format for basic tracker
+	Singleton = store.GlobalState[Collection]
 )

@@ -1,5 +1,6 @@
 package graph
 
+// Initial circular vertex with no corresponding edge
 func StartingVertex(name, parentFlow string) Vertex {
 	return Vertex{
 		SiteName: name,
@@ -12,6 +13,7 @@ func StartingVertex(name, parentFlow string) Vertex {
 	}
 }
 
+// Intermediate task node denoting process activity
 func TaskVertex(name, parentFlow string) Vertex {
 	return Vertex{
 		SiteName: name,
@@ -24,6 +26,7 @@ func TaskVertex(name, parentFlow string) Vertex {
 	}
 }
 
+// Final circular vertex with no child nodes
 func EndingVertex(name, parentFlow string, isError bool, isReturned bool) Vertex {
 	col := colours.GREEN
 	if isError {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/constants"
+	"github.com/Oracen/procflow/core/fileio"
 	"github.com/Oracen/procflow/core/store"
 	"github.com/Oracen/procflow/core/stringhandle"
 	"github.com/Oracen/procflow/core/tracker"
@@ -13,6 +14,7 @@ import (
 
 var (
 	singletonPtr Singleton
+	// Local pointer to global state, can be reset for testing
 	StateManager = &store.StateManager
 )
 
@@ -28,6 +30,7 @@ func registerGlobal(singletonPointer *Singleton, collection *Collection, writer 
 	return &export
 }
 
+// Initialises string-based basic tracking object with required params
 func RegisterTracker(ctx context.Context) (t Tracker) {
 	// Set up simple values
 	parentName, ok := ctx.Value(constants.ContextParentFlowKey).(string)
@@ -35,7 +38,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 
 	if StateManager.UseGlobalState() {
 		// If shared state enabled, use the singleton to bring the object in
-		export := registerGlobal(&singletonPtr, &collection, CreateFile)
+		export := registerGlobal(&singletonPtr, &collection, fileio.CreateFileEncapsulation("flow.txt"))
 		StateManager.AddExporter("basic", export)
 	}
 	if parentName == "" || !ok {
@@ -45,6 +48,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 	return tracker.RegisterBasicTracker(&collection, parentName)
 }
 
+// Action annotation for marking start of a process flow
 func Start(ctx context.Context, tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
 		taskName := stringhandle.PackNames(name, taskLabel.START)
@@ -54,6 +58,7 @@ func Start(ctx context.Context, tracker *Tracker, name, description string) (ctx
 	return
 }
 
+// Action annotation for marking intermediate tasks of a process
 func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
 		taskName := stringhandle.PackNames(name, taskLabel.TASK)
@@ -63,6 +68,7 @@ func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, descriptio
 	return
 }
 
+// Action annotation for marking the endpoints of a process flow
 func End(tracker *Tracker, inputs []Node, name, description string, isError bool) {
 	if StateManager.TrackState() {
 		nodeType := taskLabel.END

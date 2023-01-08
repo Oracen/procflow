@@ -34,6 +34,7 @@ func (e *exporter) ExportRun(filename string) {
 	ExportRunTxt(converted, fileHandle)
 }
 
+// Conversion function to map from string array to exportable bytes format
 func Convert(stringData Array) (bytes []byte) {
 	joined := strings.Join(stringData, "\n")
 	return []byte(joined)
