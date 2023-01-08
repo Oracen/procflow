@@ -23,7 +23,7 @@ func NestedProcess(ctx context.Context, input int) (output int, err error) {
 	ctx, nodeStart := graph.Start(ctx, &tracker, "start-node", "Records process entrypoint")
 
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "task-node", "Task in first process")
-    
+
 	output, err = CallService(ctx, input)
     if err != nil {
         isError := true
@@ -50,11 +50,11 @@ One of the central challenges of code and system maintenance is documentation. P
 
 However, docstrings do not tell the whole story. In codebases with complex business logic or high degrees of reusability, tracing the exact flow of a program can become a challenge that docstrings only partially assist. Modelling frameworks such as BPMN were developed to help make sense of complex systems and describe the process flow of a system. This is a less-granular view of how a system behaves, but performs the role of a high-level overview that has the advantage of being simpler to understand for non-expert users.
 
-In practice, BMPN diagrams fall into the same hole as documentation did in the past. With the exception of frameworks that are BPMN-first (Camunda/Zeebee etc.) and the simpler DAG charts produced by workflow tools (Airflow etc.), there is a lack of documentation for general-consumption program flow. BPMN diagrams quickly fall out of concordance with the target system unless the team is using BPMN as a fairly strict blueprint, and this constraint smacks of BDUF.
+In practice, system diagrams fall into the same hole as documentation did in the past. With the exception of frameworks that are BPMN-first (Camunda/Zeebee etc.) and the simpler DAG charts produced by workflow tools (Airflow etc.), there is a lack of documentation for general-consumption program flow. System diagrams quickly fall out of concordance with the target system unless the team is using a system diagram as a fairly strict blueprint, and this constraint smacks of BDUF.
 
 Problems arise when the plan, rather than the system, is treated as the source of truth.
 
-This package steps into this gap and attempts to reverse the dependency. Our systems should not reflect BPMN diagrams, BPMN should reflect our systems. If our system is dynamic, our documentation should reflect that.
+This package steps into this gap and attempts to reverse the dependency. Our systems should not reflect diagrams, diagrams should reflect our systems. If our system is dynamic, our documentation should reflect that.
 
 ### Use Case
 
