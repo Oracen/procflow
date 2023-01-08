@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+var StateManager = CreateNewStateManager()
+
 type Exporter interface {
 	ExportRun(string)
 }
@@ -17,6 +19,7 @@ type stateManager struct {
 
 func (s *stateManager) EnableUseGlobalState() {
 	s.useGlobalState = true
+	s.trackState = true
 }
 
 func (s *stateManager) EnableTrackState() {
@@ -55,8 +58,6 @@ func (s *stateManager) RunExport(filepath string) {
 func CreateNewStateManager() stateManager {
 	return stateManager{false, false, sync.Mutex{}, map[string]Exporter{}}
 }
-
-var StateManager = CreateNewStateManager()
 
 type State[T any] interface {
 	addObject(*T)
