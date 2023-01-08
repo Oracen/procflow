@@ -204,7 +204,7 @@ func proc1(ctx context.Context, willFailOn int) error {
 This straightforward example is all trivial to understand. But what happens when the logic gets convoluted? When the system state gets tangled? When you're not sure if you're hitting all branches of your code, or multiple layers of abstraction mean that process logic is multiple layers deep? This is the problem we want to set out to solve. By decorating with `procflow` tracking annotations, it becomes possible to record the structure of the process logic. In essence we use unit testing to assist in visibility for both devs and product owners.
 
 ### Adding Flow Tracking
-The current system is a little verbose, but it is relatively straightforward. First, we initiate a tracker object (in this case, a `graph` tracker) and `defer` its closure with `defer tracker.CloseTrace()`. Next, we instantiate some `Start` nodes to record an entrypoint into our program. Then, we proceed through our program annotating with `Task` or `End` (return value or error, as appropriate), propagating the context each time. Let's look at how the `proc1` function looks after annotation:
+The current system is a little verbose, but it is relatively straightforward. First, we initiate a tracker object (in this case, a `graph` tracker) and `defer` its closure with `defer tracker.CloseTrace()`. Next, we instantiate some `Start` nodes to record an entrypoint into our program. Then, we proceed through our program annotating with `Task` or `End` (return value or error, as appropriate), propagating the context each time. Here's how the `proc1` function looks after annotation:
 
 ```go
 package procflow_test
@@ -250,7 +250,7 @@ func proc1(ctx context.Context, willFailOn int) error {
 }
 ```
 
-Let's break down a few things:
+Yes, it's a little verbose, it's early days. Let's break down a few things:
 - Context is passed into the handler constructor, but is not propagated. This is because `procflow` checks context for evidence of a parent flow, and uses this to structure the final graph. If no parent is found, `procflow` assumes the process is operating in the global context
 - `graph.Start` denotes the point at which input comes into the function. In other processes, this may include things like `channels` or shared state
 - `graph.Task` is a catchall for function calls. Both `Task` and `Start` update the context as the context can be propagated to child processes
