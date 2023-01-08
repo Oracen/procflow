@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/constants"
 	"github.com/Oracen/procflow/core/store"
 	"github.com/Oracen/procflow/core/tracker"
@@ -40,7 +41,7 @@ func registerGlobal(singletonPointer *Singleton, collection *Collection, writer 
 func RegisterTracker(ctx context.Context) (t Tracker) {
 	// Set up simple values
 	parentName, ok := ctx.Value(constants.ContextParentFlowKey).(string)
-	collection := tracker.CreateNewGraphCollection[VertexStyle, EdgeStyle]()
+	collection := collections.CreateNewGraphCollector[VertexStyle, EdgeStyle]()
 
 	if StateManager.UseGlobalState() {
 		// If shared state enabled, use the singleton to bring the object in

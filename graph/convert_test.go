@@ -6,8 +6,8 @@ import (
 	"io"
 	"testing"
 
+	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/constants"
-	"github.com/Oracen/procflow/core/tracker"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -73,7 +73,7 @@ func TestConvertToGraphPackage(t *testing.T) {
 		"test exporter writes",
 		func(t *testing.T) {
 			var mockSingleton Singleton
-			collection := tracker.CreateNewGraphCollection[VertexStyle, EdgeStyle]()
+			collection := collections.CreateNewGraphCollector[VertexStyle, EdgeStyle]()
 			buffer := &bytes.Buffer{}
 
 			export := registerGlobal(&mockSingleton, &collection, func(string) io.Writer { return buffer })

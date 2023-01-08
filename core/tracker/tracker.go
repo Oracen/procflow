@@ -28,7 +28,7 @@ type BasicTracker[S comparable] struct {
 
 func RegisterBasicTracker[S comparable](collector *collections.BasicCollector[S]) BasicTracker[S] {
 	wg := sync.WaitGroup{}
-	adapter := collections.CreateNewCollectorAdapter(collector)
+	adapter := collections.CreateNewBasicAdapter(collector)
 	return BasicTracker[S]{traceClosed: false, Collector: &adapter, wg: &wg}
 }
 
@@ -62,111 +62,20 @@ type GraphConstructor[S, T comparable] struct {
 	Vertex   topo.Vertex[S]
 	EdgeData T
 }
-type graphConstructorInner[S, T comparable] struct {
-	VertexName string
-	Vertex     topo.Vertex[S]
-	EdgeName   string
-	Edge       topo.Edge[T]
-}
-
-type GraphCollector[S, T comparable] struct {
-	Graph  topo.Graph[S, T]
-	Errors map[string]string
-	Wg     *sync.WaitGroup
-}
-
-func (g *GraphCollector[S, T]) appendError(site, errorMsg string) {
-	g.Errors[site] = errorMsg
-}
-
-func CreateNewGraphCollection[S, T comparable]() GraphCollector[S, T] {
-	errors := map[string]string{}
-	wg := sync.WaitGroup{}
-	return GraphCollector[S, T]{Graph: topo.CreateNewGraph[S, T](), Errors: errors, Wg: &wg}
-}
-
-func (g *GraphCollector[S, T]) Add(item graphConstructorInner[S, T]) error {
-	err := g.Graph.AddNewVertex(item.VertexName, item.Vertex)
-	if err != nil {
-		return err
-	}
-	if item.EdgeName == "" {
-		return nil
-	}
-
-	err = g.Graph.AddNewEdge(item.EdgeName, item.Edge)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (g *GraphCollector[S, T]) Union(other GraphCollector[S, T]) (merged GraphCollector[S, T], err error) {
-	collection, err := topo.MergeGraphs(g.Graph, other.Graph)
-	if err != nil {
-		return
-	}
-	return GraphCollector[S, T]{Graph: collection}, nil
-}
-
-func (g *GraphCollector[S, T]) AddTask() {
-	g.Wg.Add(1)
-}
-
-func (g *GraphCollector[S, T]) FinishTask() {
-	g.Wg.Done()
-}
-func (g *GraphCollector[S, T]) WaitForFinish() {
-	g.Wg.Wait()
-}
-
-type GraphCollectorAdapter[S comparable, T comparable] struct {
-	Object *GraphCollector[S, T]
-	wg     *sync.WaitGroup
-	mu     *sync.Mutex
-}
-
-func CreateNewGraphCollector[S comparable, T comparable](object *GraphCollector[S, T]) GraphCollectorAdapter[S, T] {
-	wg := sync.WaitGroup{}
-	mu := sync.Mutex{}
-	return GraphCollectorAdapter[S, T]{Object: object, wg: &wg, mu: &mu}
-}
-
-func (c *GraphCollectorAdapter[S, T]) AddRelationship(obj graphConstructorInner[S, T]) (err error) {
-	c.wg.Add(1)
-	defer c.wg.Done()
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	deref := *(c.Object)
-
-	err = deref.Add(obj)
-	if err == nil {
-		c.Object = &deref
-	}
-	return
-}
-
-func (c *GraphCollectorAdapter[S, T]) UnionRelationships(obj GraphCollector[S, T]) (merged GraphCollector[S, T], err error) {
-	c.wg.Wait()
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	deref := *(c.Object)
-	return deref.Union(obj)
-}
 
 type GraphTracker[S comparable, T comparable] struct {
 	traceClosed    bool
-	Collector      *GraphCollectorAdapter[S, T]
+	Collector      *collections.GraphCollectorAdapter[S, T]
 	NameParentNode string
 	wg             *sync.WaitGroup
 }
 
 func RegisterGraphTracker[S comparable, T comparable](
-	collector *GraphCollector[S, T],
+	collector *collections.GraphCollector[S, T],
 	parentNode string,
 ) GraphTracker[S, T] {
 	wg := sync.WaitGroup{}
-	adapter := CreateNewGraphCollector(collector)
+	adapter := collections.CreateNewGraphAdapter(collector)
 	collector.AddTask()
 	return GraphTracker[S, T]{
 		traceClosed:    false,
@@ -176,20 +85,20 @@ func RegisterGraphTracker[S comparable, T comparable](
 	}
 }
 
-func (g *GraphTracker[S, T]) handleAddRelationship(inner graphConstructorInner[S, T]) {
+func (g *GraphTracker[S, T]) handleAddRelationship(inner collections.GraphConstructorInner[S, T]) {
 	if len(g.Collector.Object.Errors) > 0 {
 		return
 	}
 	err := g.Collector.AddRelationship(inner)
 	if err != nil {
-		g.Collector.Object.appendError(inner.VertexName, fmt.Sprint(err))
+		g.Collector.Object.AppendError(inner.VertexName, fmt.Sprint(err))
 	}
 }
 
 func (g *GraphTracker[S, T]) StartFlow(data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
 	var emptyEdge topo.Edge[T]
 
-	inner := graphConstructorInner[S, T]{
+	inner := collections.GraphConstructorInner[S, T]{
 		VertexName: data.Name,
 		Vertex:     data.Vertex,
 		EdgeName:   "",
@@ -199,8 +108,8 @@ func (g *GraphTracker[S, T]) StartFlow(data GraphConstructor[S, T]) Node[GraphCo
 	return Node[GraphConstructor[S, T]]{data}
 }
 
-func constructGraphInner[S, T comparable](new, old GraphConstructor[S, T]) graphConstructorInner[S, T] {
-	return graphConstructorInner[S, T]{
+func constructGraphInner[S, T comparable](new, old GraphConstructor[S, T]) collections.GraphConstructorInner[S, T] {
+	return collections.GraphConstructorInner[S, T]{
 		VertexName: new.Name,
 		Vertex:     new.Vertex,
 		EdgeName:   fmt.Sprintf("%s:%s", old.Name, new.Name),

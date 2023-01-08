@@ -12,6 +12,6 @@ type (
 )
 
 func RegisterTracker() Tracker {
-	collection := Collection{Collection: []string{}}
+	collection := Collection{Array: []string{}}
 	return tracker.RegisterBasicTracker(&collection)
 }

@@ -14,7 +14,7 @@ type (
 	utBasicNodes       = []Node[string]
 	utGraphNode        = Node[utGraphConstructor]
 	utGraphConstructor = GraphConstructor[string, string]
-	utGraphCollection  = GraphCollector[string, string]
+	utGraphCollection  = collections.GraphCollector[string, string]
 	utVertex           = topo.Vertex[string]
 	utEdge             = topo.Edge[string]
 	mockCollection     = collections.BasicCollector[string]
@@ -25,7 +25,7 @@ func TestTracker(t *testing.T) {
 	t.Run(
 		"test basic tracker creates nodes",
 		func(t *testing.T) {
-			collection := mockCollection{Collection: []string{}}
+			collection := mockCollection{Array: []string{}}
 			tracker := RegisterBasicTracker(&collection)
 
 			node1 := tracker.StartFlow("input")
@@ -34,7 +34,7 @@ func TestTracker(t *testing.T) {
 
 			tracker.CloseTrace()
 			assert.True(t, tracker.traceClosed)
-			assert.Len(t, collection.Collection, 3)
+			assert.Len(t, collection.Array, 3)
 		},
 	)
 
@@ -46,7 +46,7 @@ func TestTracker(t *testing.T) {
 			}
 
 			wgDummy := sync.WaitGroup{}
-			collection := mockCollection{Collection: []string{}}
+			collection := mockCollection{Array: []string{}}
 			basicTracker := RegisterBasicTracker(&collection)
 
 			assert.True(t, trivial(&basicTracker))
@@ -67,7 +67,7 @@ func TestGraphTracker(t *testing.T) {
 	t.Run(
 		"test graph tracker creates nodes",
 		func(t *testing.T) {
-			collection := CreateNewGraphCollection[string, string]()
+			collection := collections.CreateNewGraphCollector[string, string]()
 			tracker := RegisterGraphTracker(&collection, "parent")
 
 			collection.AddTask()
@@ -106,7 +106,7 @@ func TestGraphTracker(t *testing.T) {
 	t.Run(
 		"test graph tracker reports errors",
 		func(t *testing.T) {
-			collection := CreateNewGraphCollection[string, string]()
+			collection := collections.CreateNewGraphCollector[string, string]()
 			tracker := RegisterGraphTracker(&collection, "parent")
 			collection.AddTask()
 			startData1 := utGraphConstructor{

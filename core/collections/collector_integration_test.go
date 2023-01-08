@@ -11,8 +11,8 @@ type MockCol = collections.BasicCollector[int]
 
 func TestPublicApi(t *testing.T) {
 
-	obj := MockCol{Collection: []int{-3}}
-	col := collections.CreateNewCollectorAdapter(&obj)
+	obj := MockCol{Array: []int{-3}}
+	col := collections.CreateNewBasicAdapter(&obj)
 
 	for idx := 0; idx < 5000; idx++ {
 		value := idx + 1
@@ -23,9 +23,9 @@ func TestPublicApi(t *testing.T) {
 
 	}
 
-	extra := MockCol{Collection: []int{-1, -2}}
+	extra := MockCol{Array: []int{-1, -2}}
 
 	merged, err := col.UnionRelationships(extra)
 	assert.Nil(t, err)
-	assert.Len(t, merged.Collection, 5000+3)
+	assert.Len(t, merged.Array, 5000+3)
 }

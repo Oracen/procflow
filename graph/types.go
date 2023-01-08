@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/store"
 	"github.com/Oracen/procflow/core/topo"
 	"github.com/Oracen/procflow/core/tracker"
@@ -11,7 +12,7 @@ type (
 	Constructor = tracker.GraphConstructor[VertexStyle, EdgeStyle]
 	Vertex      = topo.Vertex[VertexStyle]
 	Edge        = topo.Edge[EdgeStyle]
-	Collection  = tracker.GraphCollector[VertexStyle, EdgeStyle]
+	Collection  = collections.GraphCollector[VertexStyle, EdgeStyle]
 	Node        = tracker.Node[Constructor]
 	Graph       = topo.Graph[VertexStyle, EdgeStyle]
 	Tracker     = tracker.GraphTracker[VertexStyle, EdgeStyle]
