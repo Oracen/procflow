@@ -25,6 +25,10 @@ This tool is designed to "map" how your process logic actually executes, strippe
 
 The plan is to use unit and integration tests to call every branch of your logic (you have been writing tests, right?), then aggregate the fragmented views into a unified whole.
 
+### Example
+
+
+
 ### What This Is Not
 
 This is not a tool for every application. This is a tool for "business logic"-centric services that primarily orchestrate other tasks, where orchestration is more important than raw cycle time.
@@ -38,6 +42,12 @@ This is not a call graph. You have call graphs to serve as call graphs. However,
 
 Don't. Not yet.
 
+## Planned Features
+- [ ] BPMN notation for output graphs
+- [ ] Streamlined test integration
+- [ ] High-level decorator abstractions to simplify code annotation
+
 ## External Dependencies
 
 - Golang `graph` library: https://github.com/dominikbraun/graph
+- `graphviz` to render output files
