@@ -4,20 +4,20 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Oracen/procflow/core/collection"
+	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/topo"
 	"github.com/stretchr/testify/assert"
 )
 
 type (
-	utBasicTracker     = BasicTracker[string, mockCollectable]
+	utBasicTracker     = BasicTracker[string]
 	utBasicNodes       = []Node[string]
 	utGraphNode        = Node[utGraphConstructor]
 	utGraphConstructor = GraphConstructor[string, string]
-	utGraphCollectable = GraphCollectable[string, string]
+	utGraphCollection  = GraphCollector[string, string]
 	utVertex           = topo.Vertex[string]
 	utEdge             = topo.Edge[string]
-	mockCollectable    = collection.BasicCollectable[string]
+	mockCollection     = collections.BasicCollector[string]
 	utGraph            = topo.Graph[string, string]
 )
 
@@ -25,18 +25,16 @@ func TestTracker(t *testing.T) {
 	t.Run(
 		"test basic tracker creates nodes",
 		func(t *testing.T) {
-			wg := sync.WaitGroup{}
+			collection := mockCollection{Collection: []string{}}
+			tracker := RegisterBasicTracker(&collection)
 
-			collectable := mockCollectable{Collection: []string{}}
-			collector := collection.CreateNewCollector[string, mockCollectable](&collectable)
-			tracker := utBasicTracker{traceClosed: true, Collector: &collector, wg: &wg}
 			node1 := tracker.StartFlow("input")
 			node2 := tracker.AddNode(utBasicNodes{node1}, "intermediate")
 			tracker.EndFlow(utBasicNodes{node2}, "endpoint")
 
 			tracker.CloseTrace()
 			assert.True(t, tracker.traceClosed)
-			assert.Len(t, collectable.Collection, 3)
+			assert.Len(t, collection.Collection, 3)
 		},
 	)
 
@@ -48,18 +46,16 @@ func TestTracker(t *testing.T) {
 			}
 
 			wgDummy := sync.WaitGroup{}
-			collectable := mockCollectable{Collection: []string{}}
-			basicCollector := collection.CreateNewCollector[string, mockCollectable](&collectable)
-			basicTracker := RegisterBasicTracker(&basicCollector)
+			collection := mockCollection{Collection: []string{}}
+			basicTracker := RegisterBasicTracker(&collection)
 
 			assert.True(t, trivial(&basicTracker))
 
 			trivialGraph := func(t Tracker[utGraphConstructor]) bool {
 				return t.CloseTrace()
 			}
-			graphCollectable := utGraphCollectable{Graph: utGraph{}, Wg: &wgDummy}
-			graphCollector := CreateNewGraphCollector(&graphCollectable)
-			graphTracker := RegisterGraphTracker(&graphCollector, "parent")
+			graphCollection := utGraphCollection{Graph: utGraph{}, Wg: &wgDummy}
+			graphTracker := RegisterGraphTracker(&graphCollection, "parent")
 
 			assert.True(t, trivialGraph(&graphTracker))
 
@@ -71,12 +67,10 @@ func TestGraphTracker(t *testing.T) {
 	t.Run(
 		"test graph tracker creates nodes",
 		func(t *testing.T) {
-			wg := sync.WaitGroup{}
+			collection := CreateNewGraphCollection[string, string]()
+			tracker := RegisterGraphTracker(&collection, "parent")
 
-			collectable := CreateNewGraphCollectable[string, string]()
-			collector := CreateNewGraphCollector(&collectable)
-			tracker := GraphTracker[string, string]{traceClosed: false, Collector: &collector, wg: &wg}
-			collectable.AddTask()
+			collection.AddTask()
 			startData1 := utGraphConstructor{
 				"start 1",
 				utVertex{SiteName: "start name", Data: "no-data"},
@@ -104,20 +98,17 @@ func TestGraphTracker(t *testing.T) {
 
 			tracker.CloseTrace()
 			assert.True(t, tracker.traceClosed)
-			assert.Len(t, collectable.Graph.GetAllVertices(true), 4)
-			assert.Len(t, collectable.Graph.GetAllEdges(true), 3)
+			assert.Len(t, collection.Graph.GetAllVertices(true), 4)
+			assert.Len(t, collection.Graph.GetAllEdges(true), 3)
 		},
 	)
 
 	t.Run(
 		"test graph tracker reports errors",
 		func(t *testing.T) {
-			wg := sync.WaitGroup{}
-
-			collectable := CreateNewGraphCollectable[string, string]()
-			collector := CreateNewGraphCollector(&collectable)
-			tracker := GraphTracker[string, string]{traceClosed: false, Collector: &collector, wg: &wg}
-			collectable.AddTask()
+			collection := CreateNewGraphCollection[string, string]()
+			tracker := RegisterGraphTracker(&collection, "parent")
+			collection.AddTask()
 			startData1 := utGraphConstructor{
 				"start 1",
 				utVertex{SiteName: "start name", Data: "no-data"},
@@ -138,8 +129,8 @@ func TestGraphTracker(t *testing.T) {
 
 			tracker.CloseTrace()
 			assert.True(t, tracker.traceClosed)
-			assert.Len(t, collectable.Graph.GetAllVertices(true), 1)
-			assert.Len(t, collectable.Errors, 1)
+			assert.Len(t, collection.Graph.GetAllVertices(true), 1)
+			assert.Len(t, collection.Errors, 1)
 		},
 	)
 }

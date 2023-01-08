@@ -14,7 +14,7 @@ type exporter struct {
 }
 
 func (e *exporter) ExportRun(filename string) {
-	var collected Collectable
+	var collected Collection
 
 	outputs := e.singleton.GetState()
 	for idx, item := range outputs {

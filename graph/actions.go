@@ -30,9 +30,9 @@ func mockStateManagement() {
 	StateManager = &stateManager
 }
 
-func registerGlobal(singletonPointer *Singleton, collectable *Collectable, writer func(string) io.Writer) *exporter {
+func registerGlobal(singletonPointer *Singleton, collection *Collection, writer func(string) io.Writer) *exporter {
 	storage := store.CreateGlobalSingleton(singletonPointer, store.StateManager.GetLock())
-	storage.AddObject(collectable)
+	storage.AddObject(collection)
 	export := exporter{storage, writer}
 	return &export
 }
@@ -40,19 +40,18 @@ func registerGlobal(singletonPointer *Singleton, collectable *Collectable, write
 func RegisterTracker(ctx context.Context) (t Tracker) {
 	// Set up simple values
 	parentName, ok := ctx.Value(constants.ContextParentFlowKey).(string)
-	collectable := tracker.CreateNewGraphCollectable[VertexStyle, EdgeStyle]()
-	collector := tracker.CreateNewGraphCollector(&collectable)
+	collection := tracker.CreateNewGraphCollection[VertexStyle, EdgeStyle]()
 
 	if StateManager.UseGlobalState() {
 		// If shared state enabled, use the singleton to bring the object in
-		export := registerGlobal(&singletonPtr, &collectable, CreateFile)
+		export := registerGlobal(&singletonPtr, &collection, CreateFile)
 		StateManager.AddExporter("graph", export)
 	}
 	if parentName == "" || !ok {
 		// If no parent, initialise to default parent flow name
 		parentName = constants.ContextParentDefault
 	}
-	return tracker.RegisterGraphTracker(&collector, parentName)
+	return tracker.RegisterGraphTracker(&collection, parentName)
 }
 
 func Start(ctx context.Context, tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {

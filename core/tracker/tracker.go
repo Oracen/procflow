@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Oracen/procflow/core/collection"
+	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/topo"
 )
 
@@ -20,23 +20,24 @@ type Tracker[T comparable] interface {
 	CloseTrace() bool
 }
 
-type BasicTracker[S comparable, T any] struct {
+type BasicTracker[S comparable] struct {
 	traceClosed bool
-	Collector   *collection.Collector[S, T]
+	Collector   *collections.BasicCollectorAdapter[S]
 	wg          *sync.WaitGroup
 }
 
-func RegisterBasicTracker[S comparable, T any](collector *collection.Collector[S, T]) BasicTracker[S, T] {
+func RegisterBasicTracker[S comparable](collector *collections.BasicCollector[S]) BasicTracker[S] {
 	wg := sync.WaitGroup{}
-	return BasicTracker[S, T]{traceClosed: false, Collector: collector, wg: &wg}
+	adapter := collections.CreateNewCollectorAdapter(collector)
+	return BasicTracker[S]{traceClosed: false, Collector: &adapter, wg: &wg}
 }
 
-func (b *BasicTracker[S, T]) StartFlow(data S) Node[S] {
+func (b *BasicTracker[S]) StartFlow(data S) Node[S] {
 	b.Collector.AddRelationship(data)
 	return Node[S]{data}
 }
 
-func (b *BasicTracker[S, T]) AddNode(inputs []Node[S], data S) Node[S] {
+func (b *BasicTracker[S]) AddNode(inputs []Node[S], data S) Node[S] {
 	for range inputs {
 		b.Collector.AddRelationship(data)
 	}
@@ -44,13 +45,13 @@ func (b *BasicTracker[S, T]) AddNode(inputs []Node[S], data S) Node[S] {
 	return Node[S]{data}
 }
 
-func (b *BasicTracker[S, T]) EndFlow(inputs []Node[S], data S) {
+func (b *BasicTracker[S]) EndFlow(inputs []Node[S], data S) {
 	for range inputs {
 		b.Collector.AddRelationship(data)
 	}
 }
 
-func (b *BasicTracker[S, T]) CloseTrace() bool {
+func (b *BasicTracker[S]) CloseTrace() bool {
 	b.wg.Wait()
 	b.traceClosed = true
 	return b.traceClosed
@@ -68,23 +69,23 @@ type graphConstructorInner[S, T comparable] struct {
 	Edge       topo.Edge[T]
 }
 
-type GraphCollectable[S, T comparable] struct {
+type GraphCollector[S, T comparable] struct {
 	Graph  topo.Graph[S, T]
 	Errors map[string]string
 	Wg     *sync.WaitGroup
 }
 
-func (g *GraphCollectable[S, T]) appendError(site, errorMsg string) {
+func (g *GraphCollector[S, T]) appendError(site, errorMsg string) {
 	g.Errors[site] = errorMsg
 }
 
-func CreateNewGraphCollectable[S, T comparable]() GraphCollectable[S, T] {
+func CreateNewGraphCollection[S, T comparable]() GraphCollector[S, T] {
 	errors := map[string]string{}
 	wg := sync.WaitGroup{}
-	return GraphCollectable[S, T]{Graph: topo.CreateNewGraph[S, T](), Errors: errors, Wg: &wg}
+	return GraphCollector[S, T]{Graph: topo.CreateNewGraph[S, T](), Errors: errors, Wg: &wg}
 }
 
-func (g *GraphCollectable[S, T]) Add(item graphConstructorInner[S, T]) error {
+func (g *GraphCollector[S, T]) Add(item graphConstructorInner[S, T]) error {
 	err := g.Graph.AddNewVertex(item.VertexName, item.Vertex)
 	if err != nil {
 		return err
@@ -100,38 +101,38 @@ func (g *GraphCollectable[S, T]) Add(item graphConstructorInner[S, T]) error {
 	return nil
 }
 
-func (g *GraphCollectable[S, T]) Union(other GraphCollectable[S, T]) (merged GraphCollectable[S, T], err error) {
+func (g *GraphCollector[S, T]) Union(other GraphCollector[S, T]) (merged GraphCollector[S, T], err error) {
 	collection, err := topo.MergeGraphs(g.Graph, other.Graph)
 	if err != nil {
 		return
 	}
-	return GraphCollectable[S, T]{Graph: collection}, nil
+	return GraphCollector[S, T]{Graph: collection}, nil
 }
 
-func (g *GraphCollectable[S, T]) AddTask() {
+func (g *GraphCollector[S, T]) AddTask() {
 	g.Wg.Add(1)
 }
 
-func (g *GraphCollectable[S, T]) FinishTask() {
+func (g *GraphCollector[S, T]) FinishTask() {
 	g.Wg.Done()
 }
-func (g *GraphCollectable[S, T]) WaitForFinish() {
+func (g *GraphCollector[S, T]) WaitForFinish() {
 	g.Wg.Wait()
 }
 
-type GraphCollector[S comparable, T comparable] struct {
-	Object *GraphCollectable[S, T]
+type GraphCollectorAdapter[S comparable, T comparable] struct {
+	Object *GraphCollector[S, T]
 	wg     *sync.WaitGroup
 	mu     *sync.Mutex
 }
 
-func CreateNewGraphCollector[S comparable, T comparable](object *GraphCollectable[S, T]) GraphCollector[S, T] {
+func CreateNewGraphCollector[S comparable, T comparable](object *GraphCollector[S, T]) GraphCollectorAdapter[S, T] {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
-	return GraphCollector[S, T]{Object: object, wg: &wg, mu: &mu}
+	return GraphCollectorAdapter[S, T]{Object: object, wg: &wg, mu: &mu}
 }
 
-func (c *GraphCollector[S, T]) AddRelationship(obj graphConstructorInner[S, T]) (err error) {
+func (c *GraphCollectorAdapter[S, T]) AddRelationship(obj graphConstructorInner[S, T]) (err error) {
 	c.wg.Add(1)
 	defer c.wg.Done()
 	c.mu.Lock()
@@ -145,7 +146,7 @@ func (c *GraphCollector[S, T]) AddRelationship(obj graphConstructorInner[S, T]) 
 	return
 }
 
-func (c *GraphCollector[S, T]) UnionRelationships(obj GraphCollectable[S, T]) (merged GraphCollectable[S, T], err error) {
+func (c *GraphCollectorAdapter[S, T]) UnionRelationships(obj GraphCollector[S, T]) (merged GraphCollector[S, T], err error) {
 	c.wg.Wait()
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -155,7 +156,7 @@ func (c *GraphCollector[S, T]) UnionRelationships(obj GraphCollectable[S, T]) (m
 
 type GraphTracker[S comparable, T comparable] struct {
 	traceClosed    bool
-	Collector      *GraphCollector[S, T]
+	Collector      *GraphCollectorAdapter[S, T]
 	NameParentNode string
 	wg             *sync.WaitGroup
 }
@@ -165,10 +166,11 @@ func RegisterGraphTracker[S comparable, T comparable](
 	parentNode string,
 ) GraphTracker[S, T] {
 	wg := sync.WaitGroup{}
-	collector.Object.AddTask()
+	adapter := CreateNewGraphCollector(collector)
+	collector.AddTask()
 	return GraphTracker[S, T]{
 		traceClosed:    false,
-		Collector:      collector,
+		Collector:      &adapter,
 		NameParentNode: parentNode,
 		wg:             &wg,
 	}

@@ -73,10 +73,10 @@ func TestConvertToGraphPackage(t *testing.T) {
 		"test exporter writes",
 		func(t *testing.T) {
 			var mockSingleton Singleton
-			collectable := tracker.CreateNewGraphCollectable[VertexStyle, EdgeStyle]()
+			collection := tracker.CreateNewGraphCollection[VertexStyle, EdgeStyle]()
 			buffer := &bytes.Buffer{}
 
-			export := registerGlobal(&mockSingleton, &collectable, func(string) io.Writer { return buffer })
+			export := registerGlobal(&mockSingleton, &collection, func(string) io.Writer { return buffer })
 			export.ExportRun("file")
 			assert.Contains(t, buffer.String(), "strict digraph")
 		},

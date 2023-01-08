@@ -1,4 +1,4 @@
-package collection
+package collections
 
 import (
 	"sync"
@@ -10,12 +10,12 @@ import (
 func TestCollectorCanInitialise(t *testing.T) {
 
 	t.Run(
-		"test collector can add and merge nontrivial objects that implement Collectable",
+		"test collector can add and merge nontrivial objects that implement Collection",
 		func(t *testing.T) {
 			nExtra := 5000
 			wg := sync.WaitGroup{}
-			collectable := BasicCollectable[int]{[]int{0}}
-			collection := CreateNewCollector[int, BasicCollectable[int]](&collectable)
+			collector := BasicCollector[int]{[]int{0}}
+			collection := CreateNewCollectorAdapter(&collector)
 			for idx := 0; idx < nExtra; idx++ {
 				wg.Add(1)
 				value := idx + 1
@@ -27,7 +27,7 @@ func TestCollectorCanInitialise(t *testing.T) {
 
 			}
 			wg.Wait()
-			merged, err := collection.UnionRelationships(BasicCollectable[int]{[]int{9, 8}})
+			merged, err := collection.UnionRelationships(BasicCollector[int]{[]int{9, 8}})
 			assert.Nil(t, err)
 			assert.Len(t, merged.Collection, nExtra+3)
 		},

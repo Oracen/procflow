@@ -11,11 +11,11 @@ type (
 	Constructor = tracker.GraphConstructor[VertexStyle, EdgeStyle]
 	Vertex      = topo.Vertex[VertexStyle]
 	Edge        = topo.Edge[EdgeStyle]
-	Collectable = tracker.GraphCollectable[VertexStyle, EdgeStyle]
+	Collection  = tracker.GraphCollector[VertexStyle, EdgeStyle]
 	Node        = tracker.Node[Constructor]
 	Graph       = topo.Graph[VertexStyle, EdgeStyle]
 	Tracker     = tracker.GraphTracker[VertexStyle, EdgeStyle]
-	Singleton   = store.GlobalState[Collectable]
+	Singleton   = store.GlobalState[Collection]
 )
 
 type VertexStyle struct {

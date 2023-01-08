@@ -1,18 +1,18 @@
-package collection_test
+package collections_test
 
 import (
 	"testing"
 
-	"github.com/Oracen/procflow/core/collection"
+	"github.com/Oracen/procflow/core/collections"
 	"github.com/stretchr/testify/assert"
 )
 
-type MockCol = collection.BasicCollectable[int]
+type MockCol = collections.BasicCollector[int]
 
 func TestPublicApi(t *testing.T) {
 
 	obj := MockCol{Collection: []int{-3}}
-	col := collection.CreateNewCollector[int, MockCol](&obj)
+	col := collections.CreateNewCollectorAdapter(&obj)
 
 	for idx := 0; idx < 5000; idx++ {
 		value := idx + 1
