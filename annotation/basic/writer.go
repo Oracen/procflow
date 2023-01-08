@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Function for handling the text write operation
 func ExportRunTxt(bytes []byte, file io.Writer) {
 	if !StateManager.TrackState() {
 		return

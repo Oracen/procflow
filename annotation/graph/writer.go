@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Function for handling the graphviz write operation
 func ExportGraphDot(graph graph.Graph[string, string], file io.Writer) {
 	// dot -Tsvg -O filename.gv
 	if !StateManager.TrackState() {
