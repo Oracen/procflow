@@ -299,7 +299,7 @@ After running `dot -Tsvg -O ./output_dir/graph.gv` to parse the raw `.gv` file f
 ![The hope is, one day, this will be easier to read than source code](./static/images/graph_demo.svg)
 <!-- <img src="./static/images/graph_demo.svg"> -->
 
-And that's...
+Wow, that's...
 
 Well, it's a start.
 
