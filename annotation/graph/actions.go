@@ -38,7 +38,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 
 	if StateManager.UseGlobalState() {
 		// If shared state enabled, use the singleton to bring the object in
-		export := registerGlobal(&singletonPtr, &collection, fileio.CreateFileEncapsulation("graph.gz"))
+		export := registerGlobal(&singletonPtr, &collection, fileio.CreateFileEncapsulation("graph.gv"))
 		StateManager.AddExporter("graph", export)
 	}
 	if parentName == "" || !ok {

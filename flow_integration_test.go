@@ -46,7 +46,7 @@ func proc1func2(ctx context.Context, input int) (string, error) {
 	// Fake more nodes
 	tracker := graph.RegisterTracker(ctx)
 	defer tracker.CloseTrace()
-	ctx, nodeStart := graph.Start(ctx, &tracker, "inner2Input", "Our input node")
+	ctx, nodeStart := graph.Start(ctx, &tracker, "inner2Input", "Second inner input node")
 
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "inner2Intermediate", "Second process, first task")
 	out1 := int2string(ctx, input)
