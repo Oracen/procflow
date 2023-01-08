@@ -2,9 +2,9 @@
 
 A project for automating mapping of system behaviour into process modelling notation.
 
-| :warning:  WARNING            |
-|-------------------------------|
-| Project currently heavily WIP |
+| :warning:  WARNING                                       |
+|----------------------------------------------------------|
+| Project currently heavily WIP, use at own risk until this warning is removed and APIs stabilise |
 
 
 ## Quickstart
