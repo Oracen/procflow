@@ -17,14 +17,14 @@ Don't. Not yet.
 
 ```go
 func NestedProcess(ctx context.Context, input int) (output int, err error) {
-	// A process somewhere inside business process execution systems
-	tracker := graph.RegisterTracker(ctx)
-	defer tracker.CloseTrace()
-	ctx, nodeStart := graph.Start(ctx, &tracker, "start-node", "Records process entrypoint")
+    // A process somewhere inside business process execution systems
+    tracker := graph.RegisterTracker(ctx)
+    defer tracker.CloseTrace()
+    ctx, nodeStart := graph.Start(ctx, &tracker, "start-node", "Records process entrypoint")
 
-	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "task-node", "Task in first process")
+    ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "task-node", "Task in first process")
 
-	output, err = CallService(ctx, input)
+    output, err = CallService(ctx, input)
     
     isReturned:= true
     if err != nil {
@@ -34,8 +34,8 @@ func NestedProcess(ctx context.Context, input int) (output int, err error) {
     }
     isError := false
     
-	graph.End(&tracker, []graph.Node{node1}, "end-node", "Records successful completion and return", isReturned, isError)
-	return
+    graph.End(&tracker, []graph.Node{node1}, "end-node", "Records successful completion and return", isReturned, isError)
+    return
 }
 ```
 
@@ -84,28 +84,28 @@ Let's say we've written the following test case for a process `proc1`. We want t
 package mypackage_test
 
 import (
-	"context"
-	"testing"
+    "context"
+    "testing"
 
-	"github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/assert"
 )
 
 
 func TestDemoFlow(t *testing.T) {
-	t.Run(
-		"test node name conversion functions",
-		func(t *testing.T) {
-			ctx := context.Background()
-			for idx := 0; idx < 4; idx++ {
-				err := proc1(ctx, idx)
-				if idx == 3 {
-					assert.Nil(t, err)
-					continue
-				}
-				assert.NotNil(t, err)
-			}
-		},
-	)
+    t.Run(
+        "test node name conversion functions",
+        func(t *testing.T) {
+            ctx := context.Background()
+            for idx := 0; idx < 4; idx++ {
+                err := proc1(ctx, idx)
+                if idx == 3 {
+                    assert.Nil(t, err)
+                    continue
+                }
+                assert.NotNil(t, err)
+            }
+        },
+    )
 }
 ```
 
@@ -115,23 +115,23 @@ Ignoring TDD for a moment, we're now going to build up to a passing test. We sta
 package mypackage_test
 
 import (
-	"context"
+    "context"
 )
 
 func returnInt(context.Context) int {
-	return 1
+    return 1
 }
 
 func int2string(context.Context, int) string {
-	return "a string"
+    return "a string"
 }
 
 func string2string(context.Context, string) string {
-	return "another string"
+    return "another string"
 }
 
 func mixEmUp(context.Context, int, string) {
-	// In the tradition of the Black Pearl, takes what it can and gives nothing back
+    // In the tradition of the Black Pearl, takes what it can and gives nothing back
 }
 ```
 
@@ -142,31 +142,31 @@ Now we have our services written up, let's build 3 processes that coordinate the
 package mypackage_test
 
 import (
-	"context"
+    "context"
 )
 
 
 func proc1func1(ctx context.Context) (int, error) {
     // Fake some logic in here
-	aNumber := returnInt(ctx)
+    aNumber := returnInt(ctx)
 
-	return aNumber, nil
+    return aNumber, nil
 }
 
 func proc1func2(ctx context.Context, input int) (string, error) {
-	// Fake more nodes
-	out1 := int2string(ctx, input)
+    // Fake more nodes
+    out1 := int2string(ctx, input)
 
-	out2 := string2string(ctx, out1)
+    out2 := string2string(ctx, out1)
 
-	return out2, nil
+    return out2, nil
 }
 
 func proc1func3(ctx context.Context, inputInt int, inputStr string) error {
-	// More dummy input
-	mixEmUp(ctx, inputInt, inputStr)
+    // More dummy input
+    mixEmUp(ctx, inputInt, inputStr)
 
-	return nil
+    return nil
 }
 ```
 
@@ -176,30 +176,30 @@ We will take these 3 processes and tie them into our main business process, and 
 package procflow_test
 
 import (
-	"context"
-	"errors"
+    "context"
+    "errors"
 )
 
 
 func proc1(ctx context.Context, willFailOn int) error {
-	// No error branches should fail without our input
+    // No error branches should fail without our input
 
-	out1, err := proc1func1(ctx)
-	if err != nil || willFailOn == 0 {
-		return errors.New("error1")
-	}
+    out1, err := proc1func1(ctx)
+    if err != nil || willFailOn == 0 {
+        return errors.New("error1")
+    }
 
-	out2, err2 := proc1func2(ctx, out1)
-	if err2 != nil || willFailOn == 1 {
-		return errors.New("error2")
-	}
+    out2, err2 := proc1func2(ctx, out1)
+    if err2 != nil || willFailOn == 1 {
+        return errors.New("error2")
+    }
 
-	err3 := proc1func3(ctx, out1, out2)
-	if err3 != nil || willFailOn == 2 {
-		return errors.New("error3")
-	}
+    err3 := proc1func3(ctx, out1, out2)
+    if err3 != nil || willFailOn == 2 {
+        return errors.New("error3")
+    }
 
-	return nil
+    return nil
 }
 
 ```
@@ -213,43 +213,43 @@ The current system is a little verbose, but it is relatively straightforward. Fi
 package procflow_test
 
 import (
-	"context"
-	"errors"
+    "context"
+    "errors"
 
-	"github.com/Oracen/procflow/annotation/graph"
+    "github.com/Oracen/procflow/annotation/graph"
 )
 
 // Current mode is ugly and manual, but we need to start somewhere
 func proc1(ctx context.Context, willFailOn int) error {
-	// No error branches should fail without our input
-	tracker := graph.RegisterTracker(ctx)
-	defer tracker.CloseTrace()
+    // No error branches should fail without our input
+    tracker := graph.RegisterTracker(ctx)
+    defer tracker.CloseTrace()
 
-	ctx, nodeStart := graph.Start(ctx, &tracker, "input", "Our input node")
+    ctx, nodeStart := graph.Start(ctx, &tracker, "input", "Our input node")
 
-	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "intermediate", "Top-level task")
-	out1, err := proc1func1(ctx)
+    ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "intermediate", "Top-level task")
+    out1, err := proc1func1(ctx)
 
-	if err != nil || willFailOn == 0 {
-		graph.End(&tracker, []graph.Node{node1}, "error", "first error node", true, true)
-		return errors.New("error1")
-	}
+    if err != nil || willFailOn == 0 {
+        graph.End(&tracker, []graph.Node{node1}, "error", "first error node", true, true)
+        return errors.New("error1")
+    }
 
-	ctx, node2 := graph.Task(ctx, &tracker, []graph.Node{node1}, "intermediate2", "Top-level task with int input")
-	out2, err2 := proc1func2(ctx, out1)
-	if err2 != nil || willFailOn == 1 {
-		graph.End(&tracker, []graph.Node{node2}, "error2", "second error node", true, true)
-		return errors.New("error2")
-	}
+    ctx, node2 := graph.Task(ctx, &tracker, []graph.Node{node1}, "intermediate2", "Top-level task with int input")
+    out2, err2 := proc1func2(ctx, out1)
+    if err2 != nil || willFailOn == 1 {
+        graph.End(&tracker, []graph.Node{node2}, "error2", "second error node", true, true)
+        return errors.New("error2")
+    }
 
-	ctx, node3 := graph.Task(ctx, &tracker, []graph.Node{node1, node2}, "intermediate3", "Top-level task with mixed input")
-	err3 := proc1func3(ctx, out1, out2)
-	if err3 != nil || willFailOn == 2 {
-		graph.End(&tracker, []graph.Node{node3}, "error3", "third error node", true,true)
-		return errors.New("error3")
-	}
-	graph.End(&tracker, []graph.Node{node3}, "finish", "Final top level node - success!", true, false)
-	return nil
+    ctx, node3 := graph.Task(ctx, &tracker, []graph.Node{node1, node2}, "intermediate3", "Top-level task with mixed input")
+    err3 := proc1func3(ctx, out1, out2)
+    if err3 != nil || willFailOn == 2 {
+        graph.End(&tracker, []graph.Node{node3}, "error3", "third error node", true,true)
+        return errors.New("error3")
+    }
+    graph.End(&tracker, []graph.Node{node3}, "finish", "Final top level node - success!", true, false)
+    return nil
 }
 ```
 
@@ -269,25 +269,25 @@ For now, the way this tool links into testing is through test setup/teardown. By
 package mypackage_test
 
 import (
-	"os"
-	"testing"
+    "os"
+    "testing"
 
-	"github.com/Oracen/procflow"
+    "github.com/Oracen/procflow"
 )
 
 func TestMain(m *testing.M) {
-	var recordFlow bool
-	flag.BoolVar(&recordFlow, "recordflow", false, "use unit tests to measure program process flow")
-	flag.Parse()
+    var recordFlow bool
+    flag.BoolVar(&recordFlow, "recordflow", false, "use unit tests to measure program process flow")
+    flag.Parse()
 
-	procflow.StartFlowRecord(recordFlow)
-	exitVal := m.Run()
-	if exitVal == 0 {
+    procflow.StartFlowRecord(recordFlow)
+    exitVal := m.Run()
+    if exitVal == 0 {
         // If you only want to record on success, else `defer` may be better
-		procflow.StopFlowRecord(recordFlow, "./output_dir")
-	}
+        procflow.StopFlowRecord(recordFlow, "./output_dir")
+    }
 
-	os.Exit(exitVal)
+    os.Exit(exitVal)
 }
 ```
 
