@@ -24,7 +24,6 @@ type VertexStyle struct {
 	Shape       string
 	ParentFlow  string
 	IsFlowStart bool
-	IsFlowEnd   bool
 }
 
 type EdgeStyle struct {

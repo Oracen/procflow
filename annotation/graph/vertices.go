@@ -8,7 +8,6 @@ func StartingVertex(name, parentFlow string) Vertex {
 			Shape:       shapes.ELLIPSE,
 			ParentFlow:  parentFlow,
 			IsFlowStart: true,
-			IsFlowEnd:   false,
 		},
 	}
 }
@@ -21,7 +20,6 @@ func TaskVertex(name, parentFlow string) Vertex {
 			Shape:       shapes.BOX,
 			ParentFlow:  parentFlow,
 			IsFlowStart: false,
-			IsFlowEnd:   false,
 		},
 	}
 }
@@ -42,7 +40,6 @@ func EndingVertex(name, parentFlow string, isError bool, isReturned bool) Vertex
 			Shape:       shape,
 			ParentFlow:  parentFlow,
 			IsFlowStart: false,
-			IsFlowEnd:   true,
 		},
 	}
 }
