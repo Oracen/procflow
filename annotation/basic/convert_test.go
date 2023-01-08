@@ -9,10 +9,16 @@ import (
 
 	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/constants"
+	"github.com/Oracen/procflow/core/flags"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertToGraphPackage(t *testing.T) {
+	recordFlow := flags.GetRecordFlow()
+	if !*recordFlow {
+		mockStateManagement()
+		StateManager.EnableTrackState()
+	}
 
 	t.Run(
 		"test convert simple graph yields dag",

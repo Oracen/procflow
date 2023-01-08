@@ -7,10 +7,16 @@ import (
 	"testing"
 
 	"github.com/Oracen/procflow/core/collections"
+	"github.com/Oracen/procflow/core/flags"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertToGraphPackage(t *testing.T) {
+	recordFlow := flags.GetRecordFlow()
+	if !*recordFlow {
+		mockStateManagement()
+		StateManager.EnableTrackState()
+	}
 	t.Run(
 		"test convert simple graph yields dag",
 		func(t *testing.T) {
@@ -18,7 +24,7 @@ func TestConvertToGraphPackage(t *testing.T) {
 			tracker := RegisterTracker(ctx)
 			ctx, node := Start(ctx, &tracker, "start", "Start point")
 			_, node = Task(ctx, &tracker, []Node{node}, "task", "A task name is longer")
-			End(&tracker, []Node{node}, "end", "Endpoint", false)
+			End(&tracker, []Node{node}, "end", "Endpoint", true, false)
 			tracker.CloseTrace()
 
 			dotGraph := Convert(tracker.Collector.Object.Graph)
@@ -39,15 +45,15 @@ func TestConvertToGraphPackage(t *testing.T) {
 			tracker2 := RegisterTracker(ctx)
 			ctx, node = Start(ctx, &tracker2, "startInner", "Start point inner")
 			_, node = Task(ctx, &tracker2, []Node{node}, "taskInner", "A task name is inside")
-			End(&tracker2, []Node{node}, "endInner", "Endpoint inner", false)
+			End(&tracker2, []Node{node}, "endInner", "Endpoint inner", true, false)
 
-			End(&tracker, []Node{nodeTop}, "end", "Endpoint", false)
+			End(&tracker, []Node{nodeTop}, "end", "Endpoint", true, false)
 			tracker.CloseTrace()
 
 			g, _ := tracker.Collector.UnionRelationships(*tracker2.Collector.Object)
 
 			dotGraph := Convert(g.Graph)
-			assert.Equal(t, 6, dotGraph.Size())
+			assert.Equal(t, 5, dotGraph.Size())
 			_, err := dotGraph.Vertex("startInner")
 			assert.Nil(t, err)
 		},

@@ -38,7 +38,7 @@ func proc1func1(ctx context.Context) (int, error) {
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "inner1Intermediate", "Task in first process")
 	aNumber := returnInt(ctx)
 
-	graph.End(&tracker, []graph.Node{node1}, "inner1Finish", "Finish first process", false)
+	graph.End(&tracker, []graph.Node{node1}, "inner1Finish", "Finish first process", true, false)
 	return aNumber, nil
 }
 
@@ -54,7 +54,7 @@ func proc1func2(ctx context.Context, input int) (string, error) {
 	ctx, node2 := graph.Task(ctx, &tracker, []graph.Node{node1}, "inner2Intermediate2", "Second process, second task")
 	out2 := string2string(ctx, out1)
 
-	graph.End(&tracker, []graph.Node{node2}, "inner2Finish", "Finish second process", false)
+	graph.End(&tracker, []graph.Node{node2}, "inner2Finish", "Finish second process", true, false)
 	return out2, nil
 }
 
@@ -67,7 +67,7 @@ func proc1func3(ctx context.Context, inputInt int, inputStr string) error {
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "inner3Intermediate", "Task in third process")
 	mixEmUp(ctx, inputInt, inputStr)
 
-	graph.End(&tracker, []graph.Node{node1}, "inner3Finish", "Finish third process", false)
+	graph.End(&tracker, []graph.Node{node1}, "inner3Finish", "Finish third process", true, false)
 	return nil
 }
 
@@ -83,24 +83,24 @@ func proc1(ctx context.Context, willFailOn int) error {
 	out1, err := proc1func1(ctx)
 
 	if err != nil || willFailOn == 0 {
-		graph.End(&tracker, []graph.Node{node1}, "error", "first error node", true)
+		graph.End(&tracker, []graph.Node{node1}, "error", "first error node", true, true)
 		return errors.New("error1")
 	}
 
 	ctx, node2 := graph.Task(ctx, &tracker, []graph.Node{node1}, "intermediate2", "Top-level task with int input")
 	out2, err2 := proc1func2(ctx, out1)
 	if err2 != nil || willFailOn == 1 {
-		graph.End(&tracker, []graph.Node{node2}, "error2", "second error node", true)
+		graph.End(&tracker, []graph.Node{node2}, "error2", "second error node", true, true)
 		return errors.New("error2")
 	}
 
 	ctx, node3 := graph.Task(ctx, &tracker, []graph.Node{node1, node2}, "intermediate3", "Top-level task with mixed input")
 	err3 := proc1func3(ctx, out1, out2)
 	if err3 != nil || willFailOn == 2 {
-		graph.End(&tracker, []graph.Node{node3}, "error3", "third error node", true)
+		graph.End(&tracker, []graph.Node{node3}, "error3", "third error node", true, true)
 		return errors.New("error3")
 	}
-	graph.End(&tracker, []graph.Node{node3}, "finish", "Final top level node - success!", false)
+	graph.End(&tracker, []graph.Node{node3}, "finish", "Final top level node - success!", true, false)
 	return nil
 }
 
@@ -124,11 +124,11 @@ func TestDemoFlow(t *testing.T) {
 func TestMain(m *testing.M) {
 	recordFlow := flags.GetRecordFlow()
 	flag.Parse()
-	procflow.StartFlowRecord(recordFlow)
+	procflow.StartFlowRecord(*recordFlow)
 
 	exitVal := m.Run()
 	if exitVal == 0 {
-		procflow.StopFlowRecord(recordFlow, ".")
+		procflow.StopFlowRecord(*recordFlow, ".")
 	}
 
 	os.Exit(exitVal)

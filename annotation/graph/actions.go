@@ -71,7 +71,7 @@ func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, descriptio
 	return
 }
 
-func End(tracker *Tracker, inputs []Node, name, description string, isError bool) {
+func End(tracker *Tracker, inputs []Node, name, description string, isReturned, isError bool) {
 	if StateManager.TrackState() {
 		edge := StandardEdge()
 		if isError {
@@ -79,7 +79,7 @@ func End(tracker *Tracker, inputs []Node, name, description string, isError bool
 		}
 		params := Constructor{
 			Name:     stringhandle.PackNames(tracker.NameParentNode, name),
-			Vertex:   EndingVertex(description, tracker.NameParentNode, isError),
+			Vertex:   EndingVertex(description, tracker.NameParentNode, isError, isReturned),
 			EdgeData: edge,
 		}
 		tracker.EndFlow(inputs, params)

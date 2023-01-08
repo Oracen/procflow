@@ -26,16 +26,20 @@ func TaskVertex(name, parentFlow string) Vertex {
 	}
 }
 
-func EndingVertex(name, parentFlow string, isError bool) Vertex {
+func EndingVertex(name, parentFlow string, isError bool, isReturned bool) Vertex {
 	col := colours.GREEN
 	if isError {
 		col = colours.RED
+	}
+	shape := shapes.ELLIPSE
+	if !isReturned {
+		shape = shapes.INVHOUSE
 	}
 	return Vertex{
 		SiteName: name,
 		Data: VertexStyle{
 			Colour:      col,
-			Shape:       shapes.ELLIPSE,
+			Shape:       shape,
 			ParentFlow:  parentFlow,
 			IsFlowStart: false,
 			IsFlowEnd:   true,

@@ -25,13 +25,16 @@ func NestedProcess(ctx context.Context, input int) (output int, err error) {
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "task-node", "Task in first process")
 
 	output, err = CallService(ctx, input)
+    
+    isReturned:= true
     if err != nil {
         isError := true
-        graph.End(&tracker, []graph.Node{node1}, "error-node", "Records failed branch", isError)
+        graph.End(&tracker, []graph.Node{node1}, "error-node", "Records failed branch", isReturned, isError)
+        return
     }
-
     isError := false
-	graph.End(&tracker, []graph.Node{node1}, "end-node", "Records successful completion and return", isError)
+    
+	graph.End(&tracker, []graph.Node{node1}, "end-node", "Records successful completion and return", isReturned, isError)
 	return
 }
 ```
@@ -228,24 +231,24 @@ func proc1(ctx context.Context, willFailOn int) error {
 	out1, err := proc1func1(ctx)
 
 	if err != nil || willFailOn == 0 {
-		graph.End(&tracker, []graph.Node{node1}, "error", "first error node", true)
+		graph.End(&tracker, []graph.Node{node1}, "error", "first error node", true, true)
 		return errors.New("error1")
 	}
 
 	ctx, node2 := graph.Task(ctx, &tracker, []graph.Node{node1}, "intermediate2", "Top-level task with int input")
 	out2, err2 := proc1func2(ctx, out1)
 	if err2 != nil || willFailOn == 1 {
-		graph.End(&tracker, []graph.Node{node2}, "error2", "second error node", true)
+		graph.End(&tracker, []graph.Node{node2}, "error2", "second error node", true, true)
 		return errors.New("error2")
 	}
 
 	ctx, node3 := graph.Task(ctx, &tracker, []graph.Node{node1, node2}, "intermediate3", "Top-level task with mixed input")
 	err3 := proc1func3(ctx, out1, out2)
 	if err3 != nil || willFailOn == 2 {
-		graph.End(&tracker, []graph.Node{node3}, "error3", "third error node", true)
+		graph.End(&tracker, []graph.Node{node3}, "error3", "third error node", true,true)
 		return errors.New("error3")
 	}
-	graph.End(&tracker, []graph.Node{node3}, "finish", "Final top level node - success!", false)
+	graph.End(&tracker, []graph.Node{node3}, "finish", "Final top level node - success!", true, false)
 	return nil
 }
 ```

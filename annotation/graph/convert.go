@@ -67,17 +67,12 @@ func Convert(graphData Graph) (dotGraph graph.Graph[string, string]) {
 
 	// Handle nested flows
 	for key, value := range graphData.GetAllVertices(true) {
-		check := value.Data.ParentFlow == constants.ContextParentDefault ||
-			(!value.Data.IsFlowStart && !value.Data.IsFlowEnd)
+		check := value.Data.ParentFlow == constants.ContextParentDefault || !value.Data.IsFlowStart
 		if check {
 			continue
 		}
 		name := stringhandle.UnpackNames(value.Data.ParentFlow, key)
 		start, end := value.Data.ParentFlow, name
-
-		if value.Data.IsFlowEnd {
-			start, end = name, value.Data.ParentFlow
-		}
 
 		dotGraph.AddEdge(
 			start,

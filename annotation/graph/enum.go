@@ -17,9 +17,11 @@ var colours = struct {
 }
 
 var shapes = struct {
-	ELLIPSE string
-	BOX     string
+	ELLIPSE  string
+	BOX      string
+	INVHOUSE string
 }{
-	ELLIPSE: "ellipse",
-	BOX:     "box",
+	ELLIPSE:  "ellipse",
+	BOX:      "box",
+	INVHOUSE: "invhouse",
 }
