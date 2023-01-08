@@ -303,7 +303,7 @@ Wow, that's...
 
 Well, it's a start.
 
-Obviously the current rendering engine isn't 100%, and relying on Graphviz to do the heavy lifting of presenting a program flow is never going to end well. Eventually this program will support more program logic-oriented rendering schemes (such as BMPN), but that is yet to be released.
+Obviously the current rendering engine isn't 100%, and relying on Graphviz to do the heavy lifting of presenting a program flow is asking for trouble. (At least, without manual editing.) Still, we have pulled the core dependencies out of our program using annotations and context passing, and yielded something much more readable than a call graph. Eventually this program will support more program logic-oriented rendering schemes (such as BMPN), but that is yet to be released.
 
 ## Notes
 ### Planned Features
