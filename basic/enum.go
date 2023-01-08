@@ -1,25 +1,13 @@
 package basic
 
-var colours = struct {
-	STRONGRED string
-	RED       string
-	GREEN     string
-	BLUE      string
-	NEUTRAL   string
-	BLACK     string
+var taskLabel = struct {
+	START string
+	TASK  string
+	END   string
+	ERROR string
 }{
-	STRONGRED: "red",
-	RED:       "indianred1",
-	GREEN:     "lightgreen",
-	BLUE:      "lightskyblue",
-	NEUTRAL:   "aliceblue",
-	BLACK:     "black",
-}
-
-var shapes = struct {
-	ELLIPSE string
-	BOX     string
-}{
-	ELLIPSE: "ellipse",
-	BOX:     "box",
+	START: "start",
+	TASK:  "task",
+	END:   "end",
+	ERROR: "error",
 }

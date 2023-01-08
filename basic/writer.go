@@ -5,8 +5,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/dominikbraun/graph"
-	"github.com/dominikbraun/graph/draw"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,13 +16,12 @@ func CreateFile(filename string) io.Writer {
 	return file
 }
 
-func ExportGraphDot(graph graph.Graph[string, string], file io.Writer) {
+func ExportRunTxt(bytes []byte, file io.Writer) {
 	// dot -Tsvg -O filename.gv
 	if !StateManager.TrackState() {
 		return
 	}
-
-	err := draw.DOT(graph, file)
+	_, err := file.Write(bytes)
 	if err != nil {
 		log.Error("writing graph dot file failed with error: " + err.Error())
 	}

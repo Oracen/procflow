@@ -10,7 +10,7 @@ type (
 	Errors     = []string
 	Collection = collections.BasicCollector[string]
 	Node       = tracker.Node[string]
-	Graph      = []string
+	Array      = []string
 	Tracker    = tracker.BasicTracker[string]
 	Singleton  = store.GlobalState[Collection]
 )

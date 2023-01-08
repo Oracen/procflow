@@ -36,7 +36,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 	if StateManager.UseGlobalState() {
 		// If shared state enabled, use the singleton to bring the object in
 		export := registerGlobal(&singletonPtr, &collection, CreateFile)
-		StateManager.AddExporter("graph", export)
+		StateManager.AddExporter("basic", export)
 	}
 	if parentName == "" || !ok {
 		// If no parent, initialise to default parent flow name
@@ -47,7 +47,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 
 func Start(ctx context.Context, tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
-		taskName := stringhandle.PackNames(name, "start")
+		taskName := stringhandle.PackNames(name, taskLabel.START)
 		node = tracker.StartFlow(stringhandle.PackNames(tracker.NameParentNode, taskName))
 	}
 	ctxNew = context.WithValue(ctx, constants.ContextParentFlowKey, name)
@@ -56,12 +56,8 @@ func Start(ctx context.Context, tracker *Tracker, name, description string) (ctx
 
 func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
-		params := Constructor{
-			Name:     packNames(tracker.NameParentNode, name),
-			Vertex:   TaskVertex(description, tracker.NameParentNode),
-			EdgeData: StandardEdge(),
-		}
-		node = tracker.AddNode(inputs, params)
+		taskName := stringhandle.PackNames(name, taskLabel.TASK)
+		node = tracker.AddNode(inputs, stringhandle.PackNames(tracker.NameParentNode, taskName))
 	}
 	ctxNew = context.WithValue(ctx, constants.ContextParentFlowKey, name)
 	return
@@ -69,15 +65,11 @@ func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, descriptio
 
 func End(tracker *Tracker, inputs []Node, name, description string, isError bool) {
 	if StateManager.TrackState() {
-		edge := StandardEdge()
+		nodeType := taskLabel.END
 		if isError {
-			edge = ErrorEdge()
+			nodeType = taskLabel.ERROR
 		}
-		params := Constructor{
-			Name:     packNames(tracker.NameParentNode, name),
-			Vertex:   EndingVertex(description, tracker.NameParentNode, isError),
-			EdgeData: edge,
-		}
-		tracker.EndFlow(inputs, params)
+		taskName := stringhandle.PackNames(name, nodeType)
+		tracker.EndFlow(inputs, stringhandle.PackNames(tracker.NameParentNode, taskName))
 	}
 }
