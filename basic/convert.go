@@ -1,11 +1,10 @@
-package graph
+package basic
 
 import (
 	"io"
 	"log"
 
 	"github.com/Oracen/procflow/core/constants"
-	"github.com/Oracen/procflow/core/stringhandle"
 	"github.com/dominikbraun/graph"
 )
 
@@ -41,7 +40,7 @@ func Convert(graphData Graph) (dotGraph graph.Graph[string, string]) {
 
 	// First instantiate all vertices
 	for key, value := range graphData.GetAllVertices(true) {
-		name := stringhandle.UnpackNames(value.Data.ParentFlow, key)
+		name := unpackNames(value.Data.ParentFlow, key)
 		dotGraph.AddVertex(
 			name,
 			graph.VertexAttribute("style", "filled"),
@@ -54,9 +53,9 @@ func Convert(graphData Graph) (dotGraph graph.Graph[string, string]) {
 	// Add in primary edges
 	for _, value := range graphData.GetAllEdges(true) {
 		from, _ := graphData.GetVertex(value.VertexFrom)
-		fromName := stringhandle.UnpackNames(from.Data.ParentFlow, value.VertexFrom)
+		fromName := unpackNames(from.Data.ParentFlow, value.VertexFrom)
 		to, _ := graphData.GetVertex(value.VertexTo)
-		toName := stringhandle.UnpackNames(to.Data.ParentFlow, value.VertexTo)
+		toName := unpackNames(to.Data.ParentFlow, value.VertexTo)
 		dotGraph.AddEdge(
 			fromName,
 			toName,
@@ -72,7 +71,7 @@ func Convert(graphData Graph) (dotGraph graph.Graph[string, string]) {
 		if check {
 			continue
 		}
-		name := stringhandle.UnpackNames(value.Data.ParentFlow, key)
+		name := unpackNames(value.Data.ParentFlow, key)
 		start, end := value.Data.ParentFlow, name
 
 		if value.Data.IsFlowEnd {

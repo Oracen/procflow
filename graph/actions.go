@@ -2,13 +2,12 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/Oracen/procflow/core/collections"
 	"github.com/Oracen/procflow/core/constants"
 	"github.com/Oracen/procflow/core/store"
+	"github.com/Oracen/procflow/core/stringhandle"
 	"github.com/Oracen/procflow/core/tracker"
 )
 
@@ -16,15 +15,6 @@ var (
 	singletonPtr Singleton
 	StateManager = &store.StateManager
 )
-
-func packNames(parentNodeName, currentNodeName string) string {
-	return fmt.Sprintf("%s%s%s", parentNodeName, constants.StandardDelimiter, currentNodeName)
-}
-
-func unpackNames(parentNodeName, packedName string) string {
-	prefix := fmt.Sprintf("%s%s", parentNodeName, constants.StandardDelimiter)
-	return strings.TrimPrefix(packedName, prefix)
-}
 
 func mockStateManagement() {
 	stateManager := store.CreateNewStateManager()
@@ -58,7 +48,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 func Start(ctx context.Context, tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
 		params := Constructor{
-			Name:     packNames(tracker.NameParentNode, name),
+			Name:     stringhandle.PackNames(tracker.NameParentNode, name),
 			Vertex:   StartingVertex(description, tracker.NameParentNode),
 			EdgeData: StandardEdge(),
 		}
@@ -71,7 +61,7 @@ func Start(ctx context.Context, tracker *Tracker, name, description string) (ctx
 func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
 		params := Constructor{
-			Name:     packNames(tracker.NameParentNode, name),
+			Name:     stringhandle.PackNames(tracker.NameParentNode, name),
 			Vertex:   TaskVertex(description, tracker.NameParentNode),
 			EdgeData: StandardEdge(),
 		}
@@ -88,7 +78,7 @@ func End(tracker *Tracker, inputs []Node, name, description string, isError bool
 			edge = ErrorEdge()
 		}
 		params := Constructor{
-			Name:     packNames(tracker.NameParentNode, name),
+			Name:     stringhandle.PackNames(tracker.NameParentNode, name),
 			Vertex:   EndingVertex(description, tracker.NameParentNode, isError),
 			EdgeData: edge,
 		}

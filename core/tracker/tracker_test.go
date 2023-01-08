@@ -26,7 +26,7 @@ func TestTracker(t *testing.T) {
 		"test basic tracker creates nodes",
 		func(t *testing.T) {
 			collection := mockCollection{Array: []string{}}
-			tracker := RegisterBasicTracker(&collection)
+			tracker := RegisterBasicTracker(&collection, "parent")
 
 			node1 := tracker.StartFlow("input")
 			node2 := tracker.AddNode(utBasicNodes{node1}, "intermediate")
@@ -47,7 +47,7 @@ func TestTracker(t *testing.T) {
 
 			wgDummy := sync.WaitGroup{}
 			collection := mockCollection{Array: []string{}}
-			basicTracker := RegisterBasicTracker(&collection)
+			basicTracker := RegisterBasicTracker(&collection, "parent")
 
 			assert.True(t, trivial(&basicTracker))
 

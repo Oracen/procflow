@@ -21,15 +21,16 @@ type Tracker[T comparable] interface {
 }
 
 type BasicTracker[S comparable] struct {
-	traceClosed bool
-	Collector   *collections.BasicCollectorAdapter[S]
-	wg          *sync.WaitGroup
+	traceClosed    bool
+	Collector      *collections.BasicCollectorAdapter[S]
+	NameParentNode string
+	wg             *sync.WaitGroup
 }
 
-func RegisterBasicTracker[S comparable](collector *collections.BasicCollector[S]) BasicTracker[S] {
+func RegisterBasicTracker[S comparable](collector *collections.BasicCollector[S], parentName string) BasicTracker[S] {
 	wg := sync.WaitGroup{}
 	adapter := collections.CreateNewBasicAdapter(collector)
-	return BasicTracker[S]{traceClosed: false, Collector: &adapter, wg: &wg}
+	return BasicTracker[S]{traceClosed: false, Collector: &adapter, NameParentNode: parentName, wg: &wg}
 }
 
 func (b *BasicTracker[S]) StartFlow(data S) Node[S] {
