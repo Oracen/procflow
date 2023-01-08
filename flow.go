@@ -4,6 +4,7 @@ import (
 	"github.com/Oracen/procflow/core/store"
 )
 
+// Enables the use of global state recording to
 func StartFlowRecord(recordFlow bool) {
 	if !recordFlow {
 		return

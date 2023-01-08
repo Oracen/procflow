@@ -1,6 +1,11 @@
 package basic
 
+import "github.com/Oracen/procflow/core/flags"
+
 func init() {
-	// mockStateManagement()
-	// StateManager.EnableTrackState()
+	recordFlow := flags.GetRecordFlow()
+	if !recordFlow {
+		mockStateManagement()
+		StateManager.EnableTrackState()
+	}
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/Oracen/procflow"
 	"github.com/Oracen/procflow/annotation/graph"
+	"github.com/Oracen/procflow/core/flags"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -121,11 +122,10 @@ func TestDemoFlow(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	var recordFlow bool
-	flag.BoolVar(&recordFlow, "recordflow", false, "use unit tests to measure program process flow")
+	recordFlow := flags.GetRecordFlow()
 	flag.Parse()
-
 	procflow.StartFlowRecord(recordFlow)
+
 	exitVal := m.Run()
 	if exitVal == 0 {
 		procflow.StopFlowRecord(recordFlow, ".")
