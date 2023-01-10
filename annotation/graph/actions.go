@@ -33,7 +33,7 @@ func registerGlobal(singletonPointer *Singleton, collection *Collection, writer 
 // Initialises graphviz-based graph tracking object with required params
 func RegisterTracker(ctx context.Context) (t Tracker) {
 	// Set up simple values
-	parentName, ok := ctx.Value(constants.ContextParentFlowKey).(string)
+	parentName := stringhandle.GetParentFlow(ctx)
 	collection := collections.CreateNewGraphCollector[VertexStyle, EdgeStyle]()
 
 	if StateManager.UseGlobalState() {
@@ -41,15 +41,11 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 		export := registerGlobal(&singletonPtr, &collection, fileio.CreateFileEncapsulation("graph.gv"))
 		StateManager.AddExporter("graph", export)
 	}
-	if parentName == "" || !ok {
-		// If no parent, initialise to default parent flow name
-		parentName = constants.ContextParentDefault
-	}
 	return tracker.RegisterGraphTracker(&collection, parentName)
 }
 
 // Action annotation for marking start of a process flow
-func Start(ctx context.Context, tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
+func Start(tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
 	if StateManager.TrackState() {
 		params := Constructor{
 			Name:     stringhandle.PackNames(tracker.NameParentNode, name),
@@ -58,7 +54,7 @@ func Start(ctx context.Context, tracker *Tracker, name, description string) (ctx
 		}
 		node = tracker.StartFlow(params)
 	}
-	ctxNew = context.WithValue(ctx, constants.ContextParentFlowKey, name)
+
 	return
 }
 
@@ -77,7 +73,7 @@ func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, descriptio
 }
 
 // Action annotation for marking the endpoints of a process flow
-func End(tracker *Tracker, inputs []Node, name, description string, isReturned, isError bool) {
+func End(tracker *Tracker, inputs []Node, name, description string, isReturned, isError bool) (node Node) {
 	if StateManager.TrackState() {
 		edge := StandardEdge()
 		if isError {
@@ -88,6 +84,7 @@ func End(tracker *Tracker, inputs []Node, name, description string, isReturned, 
 			Vertex:   EndingVertex(description, tracker.NameParentNode, isError, isReturned),
 			EdgeData: edge,
 		}
-		tracker.EndFlow(inputs, params)
+		node = tracker.EndFlow(inputs, params)
 	}
+	return
 }

@@ -33,7 +33,7 @@ func registerGlobal(singletonPointer *Singleton, collection *Collection, writer 
 // Initialises string-based basic tracking object with required params
 func RegisterTracker(ctx context.Context) (t Tracker) {
 	// Set up simple values
-	parentName, ok := ctx.Value(constants.ContextParentFlowKey).(string)
+	parentName := stringhandle.GetParentFlow(ctx)
 	collection := collections.CreateNewBasicCollector[string]()
 
 	if StateManager.UseGlobalState() {
@@ -41,20 +41,16 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 		export := registerGlobal(&singletonPtr, &collection, fileio.CreateFileEncapsulation("flow.txt"))
 		StateManager.AddExporter("basic", export)
 	}
-	if parentName == "" || !ok {
-		// If no parent, initialise to default parent flow name
-		parentName = constants.ContextParentDefault
-	}
+
 	return tracker.RegisterBasicTracker(&collection, parentName)
 }
 
 // Action annotation for marking start of a process flow
-func Start(ctx context.Context, tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
+func Start(tracker *Tracker, name, description string) (node Node) {
 	if StateManager.TrackState() {
 		taskName := stringhandle.PackNames(name, taskLabel.START)
 		node = tracker.StartFlow(stringhandle.PackNames(tracker.NameParentNode, taskName))
 	}
-	ctxNew = context.WithValue(ctx, constants.ContextParentFlowKey, name)
 	return
 }
 
@@ -69,13 +65,14 @@ func Task(ctx context.Context, tracker *Tracker, inputs []Node, name, descriptio
 }
 
 // Action annotation for marking the endpoints of a process flow
-func End(tracker *Tracker, inputs []Node, name, description string, isError bool) {
+func End(tracker *Tracker, inputs []Node, name, description string, isError bool) (node Node) {
 	if StateManager.TrackState() {
 		nodeType := taskLabel.END
 		if isError {
 			nodeType = taskLabel.ERROR
 		}
 		taskName := stringhandle.PackNames(name, nodeType)
-		tracker.EndFlow(inputs, stringhandle.PackNames(tracker.NameParentNode, taskName))
+		node = tracker.EndFlow(inputs, stringhandle.PackNames(tracker.NameParentNode, taskName))
 	}
+	return
 }

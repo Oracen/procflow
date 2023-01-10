@@ -22,7 +22,7 @@ func TestConvertToGraphPackage(t *testing.T) {
 		func(t *testing.T) {
 			ctx := context.Background()
 			tracker := RegisterTracker(ctx)
-			ctx, node := Start(ctx, &tracker, "start", "Start point")
+			ctx, node := Start(&tracker, "start", "Start point")
 			_, node = Task(ctx, &tracker, []Node{node}, "task", "A task name is longer")
 			End(&tracker, []Node{node}, "end", "Endpoint", true, false)
 			tracker.CloseTrace()
@@ -39,11 +39,11 @@ func TestConvertToGraphPackage(t *testing.T) {
 		func(t *testing.T) {
 			ctx := context.Background()
 			tracker := RegisterTracker(ctx)
-			ctx, node := Start(ctx, &tracker, "start", "Start point")
+			ctx, node := Start(&tracker, "start", "Start point")
 			ctx, nodeTop := Task(ctx, &tracker, []Node{node}, "task", "A task name is longer")
 
 			tracker2 := RegisterTracker(ctx)
-			ctx, node = Start(ctx, &tracker2, "startInner", "Start point inner")
+			ctx, node = Start(&tracker2, "startInner", "Start point inner")
 			_, node = Task(ctx, &tracker2, []Node{node}, "taskInner", "A task name is inside")
 			End(&tracker2, []Node{node}, "endInner", "Endpoint inner", true, false)
 

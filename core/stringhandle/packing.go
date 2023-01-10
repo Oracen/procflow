@@ -15,3 +15,11 @@ func UnpackNames(parentNodeName, packedName string) string {
 	prefix := fmt.Sprintf("%s%s", parentNodeName, constants.StandardDelimiter)
 	return strings.TrimPrefix(packedName, prefix)
 }
+
+func StartFlowName(currentNodeName string) string {
+	return fmt.Sprintf("%s %s", constants.StartNodeDescriptionPrefix, currentNodeName)
+}
+
+func EndFlowName(currentNodeName string) string {
+	return fmt.Sprintf("%s %s", constants.StartNodeDescriptionPrefix, currentNodeName)
+}

@@ -33,7 +33,7 @@ func proc1func1(ctx context.Context) (int, error) {
 	// Fake some logic in here
 	tracker := graph.RegisterTracker(ctx)
 	defer tracker.CloseTrace()
-	ctx, nodeStart := graph.Start(ctx, &tracker, "inner1Input", "First inner input node")
+	ctx, nodeStart := graph.Start(&tracker, "inner1Input", "First inner input node")
 
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "inner1Intermediate", "Task in first process")
 	aNumber := returnInt(ctx)
@@ -46,7 +46,7 @@ func proc1func2(ctx context.Context, input int) (string, error) {
 	// Fake more nodes
 	tracker := graph.RegisterTracker(ctx)
 	defer tracker.CloseTrace()
-	ctx, nodeStart := graph.Start(ctx, &tracker, "inner2Input", "Second inner input node")
+	ctx, nodeStart := graph.Start(&tracker, "inner2Input", "Second inner input node")
 
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "inner2Intermediate", "Second process, first task")
 	out1 := int2string(ctx, input)
@@ -62,7 +62,7 @@ func proc1func3(ctx context.Context, inputInt int, inputStr string) error {
 	// More dummy input
 	tracker := graph.RegisterTracker(ctx)
 	defer tracker.CloseTrace()
-	ctx, nodeStart := graph.Start(ctx, &tracker, "inner3Input", "Third inner input node")
+	ctx, nodeStart := graph.Start(&tracker, "inner3Input", "Third inner input node")
 
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "inner3Intermediate", "Task in third process")
 	mixEmUp(ctx, inputInt, inputStr)
@@ -77,7 +77,7 @@ func proc1(ctx context.Context, willFailOn int) error {
 	tracker := graph.RegisterTracker(ctx)
 	defer tracker.CloseTrace()
 
-	ctx, nodeStart := graph.Start(ctx, &tracker, "input", "Our input node")
+	ctx, nodeStart := graph.Start(&tracker, "input", "Our input node")
 
 	ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "intermediate", "Top-level task")
 	out1, err := proc1func1(ctx)

@@ -225,7 +225,7 @@ func proc1(ctx context.Context, willFailOn int) error {
     tracker := graph.RegisterTracker(ctx)
     defer tracker.CloseTrace()
 
-    ctx, nodeStart := graph.Start(ctx, &tracker, "input", "Our input node")
+    ctx, nodeStart := graph.Start(&tracker, "input", "Our input node")
 
     ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "intermediate", "Top-level task")
     out1, err := proc1func1(ctx)
@@ -292,6 +292,68 @@ func TestMain(m *testing.M) {
 ```
 
 Run tests as usual, but add the `-recordflow` flag to enable the tracking system i.e `go test ./... -recordflow`. Setting this flag will yield a `graph.gv` file that shows the traced service logic.
+
+### Refactor Time
+
+While the additional code is fairly simple, it's a bit too much boilerplate. To fix this, let's apply the `wrapper` API to simlify our code. The `wrapper` API uses generics and standardised function signatures to streamline message passing. These function signatures must have the following quantities:
+- The function must accept both a `context.Context` object and a data `struct` or `interface`
+- The function must return either an `error` value or a `struct` and `error`
+
+Assuming your functions satisfy these rules, the code simplifies down as follows:
+
+```go
+package procflow_test
+
+import (
+    "context"
+    "errors"
+
+    "github.com/Oracen/procflow/wrapper/graph"
+)
+
+// Refactor service logic so our function accepts a single argument
+
+func proc1func3(ctx context.Context, combined combinedInputs) error {
+    // More dummy input
+    mixEmUp(ctx, combined.inputInt, combined.inputStr)
+
+    return nil
+}
+
+type combinedInputs struct {
+    inputInt int
+    inputStr string
+}
+
+// Somewhat cleaner
+func proc1(ctx context.Context) error {
+    tck := graph.CreateNewTrackerCtx(ctx)
+    defer tck.CloseTrace()
+
+    out1, err := graph.StartThunk(&tck, "input", "Our input node", proc1func1)
+
+    if err != nil {
+        return errors.New("error1")
+    }
+
+    out2, err := graph.Task(&tck, "intermediate2", "Top-level task with int input", proc1func2, node1)
+    if err2 != nil {
+        return errors.New("error2")
+    }
+
+    joined := combinedInputs{inputInt:out1.Payload, inputStr:out2.Payload}
+    repacked := graph.RepackMessage(joined, out1.Nodes, out2.Nodes)
+
+    _, err:= graph.EndEmpty(&tck, "intermediate3", "Top-level task with mixed input", proc1func3, repacked)
+    err3 := proc1func3(ctx, out1, out2)
+    if err3 != nil {
+        return errors.New("error3")
+    }
+    return nil
+}
+```
+
+Both `annotation` and `wrapper` APIs are interoperable, with the caveat that `wrapper` requires wrapping in functions to pass objects around. Utility functions `UnpackMessage`/`RepackMessage` ensure you can alternate between simplified and custom logic.
 
 ### Output
 After running `dot -Tsvg -O ./output_dir/graph.gv` to parse the raw `.gv` file from `graphviz` to `svg`, we end up with the following diagram:

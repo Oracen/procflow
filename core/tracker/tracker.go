@@ -16,7 +16,7 @@ type Node[T comparable] struct {
 type Tracker[T comparable] interface {
 	StartFlow(data T) Node[T]
 	AddNode(inputs []Node[T], data T) Node[T]
-	EndFlow(inputs []Node[T], data T)
+	EndFlow(inputs []Node[T], data T) Node[T]
 	CloseTrace() bool
 }
 
@@ -46,10 +46,11 @@ func (b *BasicTracker[S]) AddNode(inputs []Node[S], data S) Node[S] {
 	return Node[S]{data}
 }
 
-func (b *BasicTracker[S]) EndFlow(inputs []Node[S], data S) {
+func (b *BasicTracker[S]) EndFlow(inputs []Node[S], data S) Node[S] {
 	for range inputs {
 		b.Collector.AddRelationship(data)
 	}
+	return Node[S]{data}
 }
 
 func (b *BasicTracker[S]) CloseTrace() bool {
@@ -130,11 +131,12 @@ func (g *GraphTracker[S, T]) AddNode(inputs []Node[GraphConstructor[S, T]], data
 	return Node[GraphConstructor[S, T]]{data}
 }
 
-func (g *GraphTracker[S, T]) EndFlow(inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) {
+func (g *GraphTracker[S, T]) EndFlow(inputs []Node[GraphConstructor[S, T]], data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
 	for _, item := range inputs {
 		inner := constructGraphInner(data, item.Data)
 		g.handleAddRelationship(inner)
 	}
+	return Node[GraphConstructor[S, T]]{data}
 }
 
 func (g *GraphTracker[S, T]) CloseTrace() bool {

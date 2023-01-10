@@ -1,5 +1,9 @@
 package constants
 
-const ContextParentFlowKey ProcflowContextKey = "procflowParentFlowKey"
-const ContextParentDefault string = "global"
-const StandardDelimiter string = "::"
+const (
+	ContextParentFlowKey       ProcflowContextKey = "procflowParentFlowKey"
+	ContextParentDefault       string             = "global"
+	StandardDelimiter          string             = "::"
+	StartNodeDescriptionPrefix string             = "Start:"
+	EndNodeDescriptionPrefix   string             = "End:"
+)
