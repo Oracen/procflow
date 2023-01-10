@@ -73,6 +73,30 @@ func StartEmpty[S, T any](
 	return
 }
 
+func StartVoid[S, T any](
+	d *TrackerCtx,
+	name, description string,
+	function func(context.Context) error,
+	data S,
+) (msg Message[error], err error) {
+	parentName := stringhandle.GetParentFlow(d.Ctx)
+	node := basic.Start(d.Track, name, stringhandle.StartFlowName(parentName))
+	ctx, node := basic.Task(d.Ctx, d.Track, []basic.Node{node}, name, description)
+	err = function(ctx)
+	nodeList := []basic.Node{node}
+	if err != nil {
+		node = basic.End(d.Track, nodeList, name, err.Error()[:50], true)
+	} else {
+		node = basic.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), false)
+	}
+	nodeList = []basic.Node{node}
+	msg = Message[error]{
+		Nodes:   nodeList,
+		Payload: err,
+	}
+	return
+}
+
 func Task[S, T any](
 	d *TrackerCtx,
 	name, description string,

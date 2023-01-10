@@ -330,7 +330,7 @@ func proc1(ctx context.Context) error {
     tck := graph.CreateNewTrackerCtx(ctx)
     defer tck.CloseTrace()
 
-    out1, err := graph.StartThunk(&tck, "input", "Our input node", proc1func1)
+    out1, err := graph.StartThunk(&tck, "input", "Our input node function, no arguments", proc1func1)
     if err != nil {
         return errors.New("error1")
     }
@@ -341,7 +341,6 @@ func proc1(ctx context.Context) error {
     }
 
     repacked := graph.RepackMessage(combinedInputs{inputInt:out1.Payload, inputStr:out2.Payload}, out1.Nodes, out2.Nodes)
-
     _, err:= graph.EndEmpty(&tck, "intermediate3", "Top-level task with mixed input", proc1func3, repacked)
     if err != nil {
         return errors.New("error3")
@@ -349,6 +348,8 @@ func proc1(ctx context.Context) error {
     return nil
 }
 ```
+
+Much more readable!
 
 Both `annotation` and `wrapper` APIs are interoperable, with the caveat that `wrapper` requires wrapping in functions to pass objects around. Utility functions `UnpackMessage`/`RepackMessage` ensure you can alternate between simplified and custom logic.
 
