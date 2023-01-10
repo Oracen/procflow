@@ -331,22 +331,19 @@ func proc1(ctx context.Context) error {
     defer tck.CloseTrace()
 
     out1, err := graph.StartThunk(&tck, "input", "Our input node", proc1func1)
-
     if err != nil {
         return errors.New("error1")
     }
 
     out2, err := graph.Task(&tck, "intermediate2", "Top-level task with int input", proc1func2, node1)
-    if err2 != nil {
+    if err != nil {
         return errors.New("error2")
     }
 
-    joined := combinedInputs{inputInt:out1.Payload, inputStr:out2.Payload}
-    repacked := graph.RepackMessage(joined, out1.Nodes, out2.Nodes)
+    repacked := graph.RepackMessage(combinedInputs{inputInt:out1.Payload, inputStr:out2.Payload}, out1.Nodes, out2.Nodes)
 
     _, err:= graph.EndEmpty(&tck, "intermediate3", "Top-level task with mixed input", proc1func3, repacked)
-    err3 := proc1func3(ctx, out1, out2)
-    if err3 != nil {
+    if err != nil {
         return errors.New("error3")
     }
     return nil
