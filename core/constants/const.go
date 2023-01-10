@@ -6,4 +6,5 @@ const (
 	StandardDelimiter          string             = "::"
 	StartNodeDescriptionPrefix string             = "Start:"
 	EndNodeDescriptionPrefix   string             = "End:"
+	ErrorNodeDescriptionPrefix string             = "Error:"
 )

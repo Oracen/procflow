@@ -5,7 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Oracen/procflow/annotation/basic"
+	"github.com/Oracen/procflow/annotation/graph"
+	"github.com/Oracen/procflow/core/tracker"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -77,8 +78,13 @@ func TestTrackerCtx(t *testing.T) {
 			input := "payload"
 			nRepeats := 4
 
-			nodes1, nodes2, nodes3 := []basic.Node{}, []basic.Node{}, []basic.Node{}
-			data := basic.Node{Data: "blah"}
+			nodes1, nodes2, nodes3 := []graph.Node{}, []graph.Node{}, []graph.Node{}
+			params := graph.Constructor{
+				Name:     "",
+				Vertex:   graph.TaskVertex("", ""),
+				EdgeData: graph.StandardEdge(),
+			}
+			data := tracker.ConstructGraphNode(params)
 			for idx := 0; idx < nRepeats; idx++ {
 				nodes1 = append(nodes1, data)
 				nodes2 = append(nodes2, data)

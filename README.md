@@ -16,25 +16,27 @@ Don't. Not yet.
 ### Sample
 
 ```go
-func NestedProcess(ctx context.Context, input int) (output int, err error) {
+package mypackage
+
+import (
+    "context"
+
+    "github.com/Oracen/procflow/wrapper/graph"
+)
+
+func NestedProcess(ctx context.Context, input DataPayload) (output int, err error) {
     // A process somewhere inside business process execution systems
-    tracker := graph.RegisterTracker(ctx)
-    defer tracker.CloseTrace()
-    ctx, nodeStart := graph.Start(ctx, &tracker, "start-node", "Records process entrypoint")
+    tck := graph.CreateNewTrackerCtx(ctx)
+    defer tck.CloseTrace()
 
-    ctx, node1 := graph.Task(ctx, &tracker, []graph.Node{nodeStart}, "task-node", "Task in first process")
-
-    output, err = CallService(ctx, input)
+    response, err := graph.Start(&tck, "start-node", "Records process entrypoint and first task", CallService, input)
     
-    isReturned:= true
     if err != nil {
-        isError := true
-        graph.End(&tracker, []graph.Node{node1}, "error-node", "Records failed branch", isReturned, isError)
-        return
+        err = graph.End(&tck, "error-node", "Records rollback activities", CompensationActivity, input)
+        return 0, err
     }
-    isError := false
     
-    graph.End(&tracker, []graph.Node{node1}, "end-node", "Records successful completion and return", isReturned, isError)
+    output, err = graph.End(&tck, "end-node", "Records successful completion and return", ProcessResponse, response)
     return
 }
 ```

@@ -145,3 +145,7 @@ func (g *GraphTracker[S, T]) CloseTrace() bool {
 	g.traceClosed = true
 	return g.traceClosed
 }
+
+func ConstructGraphNode[S comparable, T comparable](data GraphConstructor[S, T]) Node[GraphConstructor[S, T]] {
+	return Node[GraphConstructor[S, T]]{data}
+}

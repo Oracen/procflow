@@ -45,7 +45,7 @@ func RegisterTracker(ctx context.Context) (t Tracker) {
 }
 
 // Action annotation for marking start of a process flow
-func Start(tracker *Tracker, name, description string) (ctxNew context.Context, node Node) {
+func Start(tracker *Tracker, name, description string) (node Node) {
 	if StateManager.TrackState() {
 		params := Constructor{
 			Name:     stringhandle.PackNames(tracker.NameParentNode, name),

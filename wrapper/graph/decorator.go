@@ -3,24 +3,24 @@ package basic
 import (
 	"context"
 
-	"github.com/Oracen/procflow/annotation/basic"
+	"github.com/Oracen/procflow/annotation/graph"
 	"github.com/Oracen/procflow/core/stringhandle"
 )
 
 type Message[T any] struct {
-	Nodes   []basic.Node
+	Nodes   []graph.Node
 	Payload T
 }
 
 type TrackerCtx struct {
 	Ctx   context.Context
-	Track *basic.Tracker
+	Track *graph.Tracker
 }
 
 func CreateNewTrackerCtx(
 	ctx context.Context,
 ) TrackerCtx {
-	tracker := basic.RegisterTracker(ctx)
+	tracker := graph.RegisterTracker(ctx)
 	return TrackerCtx{Ctx: ctx, Track: &tracker}
 }
 
@@ -35,13 +35,13 @@ func Start[S, T any](
 	data S,
 ) (msg Message[T], err error) {
 	parentName := stringhandle.GetParentFlow(d.Ctx)
-	node := basic.Start(d.Track, name, stringhandle.StartFlowName(parentName))
-	ctx, node := basic.Task(d.Ctx, d.Track, []basic.Node{node}, name, description)
+	node := graph.Start(d.Track, name, stringhandle.StartFlowName(parentName))
+	ctx, node := graph.Task(d.Ctx, d.Track, []graph.Node{node}, name, description)
 	ret, err := function(ctx, data)
-	nodeList := []basic.Node{node}
+	nodeList := []graph.Node{node}
 	if err != nil {
-		node = basic.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true)
-		nodeList = []basic.Node{node}
+		node = graph.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), false, true)
+		nodeList = []graph.Node{node}
 	}
 	msg = Message[T]{
 		Nodes:   nodeList,
@@ -51,19 +51,20 @@ func Start[S, T any](
 }
 
 // Because nullary or niladic was a bit too alien
-func StartEmpty[T any](
+func StartEmpty[S, T any](
 	d *TrackerCtx,
 	name, description string,
 	function func(context.Context) (T, error),
+	data S,
 ) (msg Message[T], err error) {
 	parentName := stringhandle.GetParentFlow(d.Ctx)
-	node := basic.Start(d.Track, name, stringhandle.StartFlowName(parentName))
-	ctx, node := basic.Task(d.Ctx, d.Track, []basic.Node{node}, name, description)
+	node := graph.Start(d.Track, name, stringhandle.StartFlowName(parentName))
+	ctx, node := graph.Task(d.Ctx, d.Track, []graph.Node{node}, name, description)
 	ret, err := function(ctx)
-	nodeList := []basic.Node{node}
+	nodeList := []graph.Node{node}
 	if err != nil {
-		node = basic.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true)
-		nodeList = []basic.Node{node}
+		node = graph.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), false, true)
+		nodeList = []graph.Node{node}
 	}
 	msg = Message[T]{
 		Nodes:   nodeList,
@@ -79,16 +80,16 @@ func TaskVoid[S, T any](
 	data S,
 ) (msg Message[error], err error) {
 	parentName := stringhandle.GetParentFlow(d.Ctx)
-	node := basic.Start(d.Track, name, stringhandle.StartFlowName(parentName))
-	ctx, node := basic.Task(d.Ctx, d.Track, []basic.Node{node}, name, description)
+	node := graph.Start(d.Track, name, stringhandle.StartFlowName(parentName))
+	ctx, node := graph.Task(d.Ctx, d.Track, []graph.Node{node}, name, description)
 	err = function(ctx)
-	nodeList := []basic.Node{node}
+	nodeList := []graph.Node{node}
 	if err != nil {
-		node = basic.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true)
+		node = graph.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), false, true)
 	} else {
-		node = basic.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), false)
+		node = graph.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), true, false)
 	}
-	nodeList = []basic.Node{node}
+	nodeList = []graph.Node{node}
 	msg = Message[error]{
 		Nodes:   nodeList,
 		Payload: err,
@@ -103,12 +104,12 @@ func Task[S, T any](
 	message Message[S],
 ) (msg Message[T], err error) {
 	parentName := stringhandle.GetParentFlow(d.Ctx)
-	ctx, node := basic.Task(d.Ctx, d.Track, message.Nodes, name, description)
+	ctx, node := graph.Task(d.Ctx, d.Track, message.Nodes, name, description)
 	ret, err := function(ctx, message.Payload)
-	nodeList := []basic.Node{node}
+	nodeList := []graph.Node{node}
 	if err != nil {
-		node = basic.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true)
-		nodeList = []basic.Node{node}
+		node = graph.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), false, true)
+		nodeList = []graph.Node{node}
 	}
 	msg = Message[T]{
 		Nodes:   nodeList,
@@ -124,15 +125,15 @@ func End[S, T any](
 	message Message[S],
 ) (msg Message[T], err error) {
 	parentName := stringhandle.GetParentFlow(d.Ctx)
-	ctx, node := basic.Task(d.Ctx, d.Track, message.Nodes, name, description)
+	ctx, node := graph.Task(d.Ctx, d.Track, message.Nodes, name, description)
 	ret, err := function(ctx, message.Payload)
-	nodeList := []basic.Node{node}
+	nodeList := []graph.Node{node}
 	if err != nil {
-		node = basic.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true)
+		node = graph.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true, true)
 	} else {
-		node = basic.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), false)
+		node = graph.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), true, false)
 	}
-	nodeList = []basic.Node{node}
+	nodeList = []graph.Node{node}
 	msg = Message[T]{
 		Nodes:   nodeList,
 		Payload: ret,
@@ -141,22 +142,22 @@ func End[S, T any](
 	return
 }
 
-func EndEmpty[S any](
+func EndEmpty[S, T any](
 	d *TrackerCtx,
 	name, description string,
 	function func(context.Context, S) error,
 	message Message[S],
 ) (msg Message[error], err error) {
 	parentName := stringhandle.GetParentFlow(d.Ctx)
-	ctx, node := basic.Task(d.Ctx, d.Track, message.Nodes, name, description)
+	ctx, node := graph.Task(d.Ctx, d.Track, message.Nodes, name, description)
 	err = function(ctx, message.Payload)
-	nodeList := []basic.Node{node}
+	nodeList := []graph.Node{node}
 	if err != nil {
-		node = basic.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true)
+		node = graph.End(d.Track, nodeList, name, stringhandle.ErrorFlowName(parentName), true, true)
 	} else {
-		node = basic.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), false)
+		node = graph.End(d.Track, nodeList, name, stringhandle.EndFlowName(parentName), true, false)
 	}
-	nodeList = []basic.Node{node}
+	nodeList = []graph.Node{node}
 	msg = Message[error]{
 		Nodes:   nodeList,
 		Payload: err,
@@ -165,14 +166,14 @@ func EndEmpty[S any](
 	return
 }
 
-func RepackMessage[T any](payload T, nodesVar ...[]basic.Node) Message[T] {
-	nodes := []basic.Node{}
+func RepackMessage[T any](payload T, nodesVar ...[]graph.Node) Message[T] {
+	nodes := []graph.Node{}
 	for _, item := range nodesVar {
 		nodes = append(nodes, item...)
 	}
 	return Message[T]{Payload: payload, Nodes: nodes}
 }
 
-func UnpackMessage[T any](message Message[T]) (T, []basic.Node) {
+func UnpackMessage[T any](message Message[T]) (T, []graph.Node) {
 	return message.Payload, message.Nodes
 }

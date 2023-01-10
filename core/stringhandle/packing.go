@@ -23,3 +23,7 @@ func StartFlowName(currentNodeName string) string {
 func EndFlowName(currentNodeName string) string {
 	return fmt.Sprintf("%s %s", constants.StartNodeDescriptionPrefix, currentNodeName)
 }
+
+func ErrorFlowName(currentNodeName string) string {
+	return fmt.Sprintf("%s %s", constants.ErrorNodeDescriptionPrefix, currentNodeName)
+}
