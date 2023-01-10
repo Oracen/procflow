@@ -295,6 +295,18 @@ func TestMain(m *testing.M) {
 
 Run tests as usual, but add the `-recordflow` flag to enable the tracking system i.e `go test ./... -recordflow`. Setting this flag will yield a `graph.gv` file that shows the traced service logic.
 
+### Output
+After running `dot -Tsvg -O ./output_dir/graph.gv` to parse the raw `.gv` file from `graphviz` to `svg`, we end up with the following diagram:
+
+![The hope is, one day, this will be easier to read than source code](./static/images/graph_demo.svg)
+<!-- <img src="./static/images/graph_demo.svg"> -->
+
+Wow, that's...
+
+Well, it's a start.
+
+Obviously the current rendering engine isn't 100%, and relying on Graphviz to do the heavy lifting of presenting a program flow is asking for trouble. (At least, without manual editing.) Still, we have pulled the core dependencies out of our program using annotations and context passing, and yielded something much more readable than a call graph. Eventually this program will support more program logic-oriented rendering schemes (such as BMPN), but that is yet to be released.
+
 ### Refactor Time
 
 While the additional code is fairly simple, it's a bit too much boilerplate. To fix this, let's apply the `wrapper` API to simlify our code. The `wrapper` API uses generics and standardised function signatures to streamline message passing. These function signatures must have the following quantities:
@@ -355,23 +367,14 @@ Much more readable!
 
 Both `annotation` and `wrapper` APIs are interoperable, with the caveat that `wrapper` requires wrapping in functions to pass objects around. Utility functions `UnpackMessage`/`RepackMessage` ensure you can alternate between simplified and custom logic.
 
-### Output
-After running `dot -Tsvg -O ./output_dir/graph.gv` to parse the raw `.gv` file from `graphviz` to `svg`, we end up with the following diagram:
-
-![The hope is, one day, this will be easier to read than source code](./static/images/graph_demo.svg)
-<!-- <img src="./static/images/graph_demo.svg"> -->
-
-Wow, that's...
-
-Well, it's a start.
-
-Obviously the current rendering engine isn't 100%, and relying on Graphviz to do the heavy lifting of presenting a program flow is asking for trouble. (At least, without manual editing.) Still, we have pulled the core dependencies out of our program using annotations and context passing, and yielded something much more readable than a call graph. Eventually this program will support more program logic-oriented rendering schemes (such as BMPN), but that is yet to be released.
-
 ## Notes
 ### Planned Features
 - [ ] BPMN notation for output graphs
 - [ ] Streamlined test integration
 - [ ] High-level decorator abstractions to simplify code annotation
+- [ ] Support for additional programatic structures e.g. loops
+- [ ] Linking into existing workflow engines for process visibility
+
 ### Program Architecture
 Some of the abstractions I've chosen are a little hacky, in particular the use of a Singleton pattern for state management. There are also some gaps that will need to be addressed later such as decorator patterns to turn this lib into middleware. I'm also aware more public APIs are exposed than are likely strictly necessary.s
 
